@@ -29,7 +29,7 @@ header img {
 
 .container {
   background: white;
-  max-width: 750px;
+  max-width: 800px;
   margin: 30px auto;
   padding: 25px;
   border-radius: 8px;
@@ -85,10 +85,18 @@ button:hover {
 <label>Unidade que Serve:</label>
 <select id="unidadeServe">
   <option value="">Selecione</option>
-  <option>1º GMAR - BOTAFOGO</option>
-  <option>2º GMAR - BARRA DA TIJUCA</option>
-  <option>3º GMAR - COPACABANA</option>
-  <option>4º GMAR - ITAIPU (CEPO)</option>
+  <option>CBA X</option>
+  <option>1º GMAR (Botafogo)</option>
+  <option>2º GMAR (Barra da Tijuca)</option>
+  <option>3º GMAR (Copacabana)</option>
+  <option>4º GMAR (Itaipu)</option>
+  <option>DBM 1/M (Paquetá)</option>
+  <option>DBM 2/M (Piscinão de Ramos)</option>
+  <option>DBM 3/M (Recreio)</option>
+  <option>DBM 4/M (Barra de Guaratiba)</option>
+  <option>DBM 5/M (Sepetiba)</option>
+  <option>DBM 6/M (Itaipu)</option>
+  <option>CER (Coordenadoria de Embarcações de Resgate)</option>
 </select>
 
 <label>Posto/Graduação:</label>
@@ -200,8 +208,6 @@ function carregarHorarios(){
   const selectHorario=document.getElementById("horario");
   selectHorario.innerHTML="";
 
-  if(!unidade) return;
-
   let horarios=[];
   if(unidade==="1GMAR") horarios=gerarHorarios("08:00",14);
   if(unidade==="2GMAR") horarios=[...gerarHorarios("08:00",14),...gerarHorarios("13:00",7)];
@@ -255,9 +261,6 @@ async function salvar(){
 }
 
 </script>
-
-</body>
-</html>/script>
 
 </body>
 </html>
