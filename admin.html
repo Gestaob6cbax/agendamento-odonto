@@ -2,19 +2,20 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Painel Administrativo - CBA X</title>
+<title>Painel Administrativo - CBAX</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
 body { font-family: Arial; background:#f2f4f8; margin:0; }
 header { background:#0a2c6d; color:white; text-align:center; padding:20px; }
-.container { max-width:1100px; margin:30px auto; background:white; padding:25px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+.container { max-width:1200px; margin:30px auto; background:white; padding:25px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
 table { width:100%; border-collapse: collapse; margin-top:20px;}
 th, td { border:1px solid #ddd; padding:8px; text-align:center;}
 th { background:#0a2c6d; color:white;}
-button { margin-top:20px; padding:10px 20px; background:#c00000; color:white; border:none; cursor:pointer;}
+button { margin:10px 5px; padding:8px 15px; background:#c00000; color:white; border:none; cursor:pointer;}
 button:hover { background:#900000;}
 </style>
 </head>
@@ -23,16 +24,18 @@ button:hover { background:#900000;}
 
 <header>
 <h1>Painel Administrativo</h1>
-<p>Agendamento Odontológico 2026 - CBA X</p>
+<p>Agendamento Odonto Inspeção 2026 - CBAX</p>
 </header>
 
 <div class="container">
 
-<button onclick="exportarExcel()">Exportar para Excel</button>
+<button onclick="cancelarSelecionados()">Cancelar Selecionados</button>
+<button onclick="exportarSelecionados()">Exportar Selecionados</button>
 
-<table id="tabela">
+<table>
 <thead>
 <tr>
+<th></th>
 <th>Unidade</th>
 <th>Data</th>
 <th>Horário</th>
@@ -43,7 +46,7 @@ button:hover { background:#900000;}
 <th>Email</th>
 </tr>
 </thead>
-<tbody></tbody>
+<tbody id="tabela"></tbody>
 </table>
 
 </div>
@@ -65,47 +68,69 @@ const db = firebase.firestore();
 async function carregarDados(){
 
 const snapshot = await db.collection("agendamentos").orderBy("criadoEm","desc").get();
-
-const tbody = document.querySelector("#tabela tbody");
-tbody.innerHTML="";
+const tabela = document.getElementById("tabela");
+tabela.innerHTML="";
 
 snapshot.forEach(doc=>{
 const d = doc.data();
 
-tbody.innerHTML += `
+tabela.innerHTML += `
 <tr>
-<td>${d.unidadeServe || "-"}</td>
-<td>${d.data || "-"}</td>
-<td>${d.horario || "-"}</td>
-<td>${d.nome || "-"}</td>
-<td>${d.posto || "-"}</td>
-<td>${d.rg || "-"}</td>
-<td>${d.telefone || "-"}</td>
-<td>${d.email || "-"}</td>
+<td><input type="checkbox" value="${doc.id}"></td>
+<td>${d.unidadeServe || ""}</td>
+<td>${d.data || ""}</td>
+<td>${d.horario || ""}</td>
+<td>${d.nome || ""}</td>
+<td>${d.posto || ""}</td>
+<td>${d.rg || ""}</td>
+<td>${d.telefone || ""}</td>
+<td>${d.email || ""}</td>
 </tr>
 `;
 });
 
 }
 
-async function exportarExcel(){
+async function cancelarSelecionados(){
 
-const snapshot = await db.collection("agendamentos").get();
+const checkboxes = document.querySelectorAll("input[type=checkbox]:checked");
 
-let csv = "Unidade que Serve,Data,Horário,Nome,Posto,RG,Telefone,Email\n";
+if(checkboxes.length === 0){
+alert("Selecione ao menos um agendamento.");
+return;
+}
 
-snapshot.forEach(doc=>{
-const d = doc.data();
-csv += `${d.unidadeServe || ""},${d.data || ""},${d.horario || ""},${d.nome || ""},${d.posto || ""},${d.rg || ""},${d.telefone || ""},${d.email || ""}\n`;
-});
+if(!confirm("Deseja realmente cancelar os agendamentos selecionados?")) return;
 
-const blob = new Blob([csv], { type: "text/csv" });
-const url = window.URL.createObjectURL(blob);
-const a = document.createElement("a");
-a.href = url;
-a.download = "agendamentos_2026.csv";
-a.click();
-window.URL.revokeObjectURL(url);
+for(const cb of checkboxes){
+await db.collection("agendamentos").doc(cb.value).delete();
+}
+
+alert("Agendamento(s) cancelado(s) com sucesso.");
+carregarDados();
+}
+
+async function exportarSelecionados(){
+
+const checkboxes = document.querySelectorAll("input[type=checkbox]:checked");
+
+if(checkboxes.length === 0){
+alert("Selecione ao menos um agendamento para exportar.");
+return;
+}
+
+let dados = [];
+
+for(const cb of checkboxes){
+const doc = await db.collection("agendamentos").doc(cb.value).get();
+dados.push(doc.data());
+}
+
+const worksheet = XLSX.utils.json_to_sheet(dados);
+const workbook = XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(workbook, worksheet, "Agendamentos");
+
+XLSX.writeFile(workbook, "agendamentos_selecionados.xlsx");
 
 }
 
