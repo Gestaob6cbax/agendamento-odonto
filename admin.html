@@ -35,7 +35,7 @@ button:hover { background:#900000;}
 <table>
 <thead>
 <tr>
-<th></th>
+<th><input type="checkbox" id="selecionarTodos" onclick="toggleTodos()"></th>
 <th>Unidade</th>
 <th>Data</th>
 <th>Horário</th>
@@ -76,7 +76,7 @@ const d = doc.data();
 
 tabela.innerHTML += `
 <tr>
-<td><input type="checkbox" value="${doc.id}"></td>
+<td><input type="checkbox" class="checkItem" value="${doc.id}"></td>
 <td>${d.unidadeServe || ""}</td>
 <td>${d.data || ""}</td>
 <td>${d.horario || ""}</td>
@@ -91,9 +91,18 @@ tabela.innerHTML += `
 
 }
 
+function toggleTodos(){
+const master = document.getElementById("selecionarTodos");
+const checks = document.querySelectorAll(".checkItem");
+
+checks.forEach(cb=>{
+cb.checked = master.checked;
+});
+}
+
 async function cancelarSelecionados(){
 
-const checkboxes = document.querySelectorAll("input[type=checkbox]:checked");
+const checkboxes = document.querySelectorAll(".checkItem:checked");
 
 if(checkboxes.length === 0){
 alert("Selecione ao menos um agendamento.");
@@ -112,7 +121,7 @@ carregarDados();
 
 async function exportarSelecionados(){
 
-const checkboxes = document.querySelectorAll("input[type=checkbox]:checked");
+const checkboxes = document.querySelectorAll(".checkItem:checked");
 
 if(checkboxes.length === 0){
 alert("Selecione ao menos um agendamento para exportar.");
