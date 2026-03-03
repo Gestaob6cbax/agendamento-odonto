@@ -13,20 +13,19 @@
     header { background:#0a2c6d; color:white; text-align:center; padding:20px; }
     .container { max-width:1350px; margin:30px auto; background:white; padding:25px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
     
-    /* ESTILO DO LOGIN */
+    /* LOGIN */
     .login-box { max-width:400px; margin:120px auto; background:white; padding:30px; text-align:center; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
     .password-container { position: relative; width: 100%; margin-top: 15px; }
     input[type=password], input[type=text] { padding:12px; width:100%; border:1px solid #ccc; border-radius:4px; box-sizing: border-box; font-size: 16px; }
     .toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; background:none; border:none; font-size:20px; }
 
-    /* TABELA E CABEÇALHO */
+    /* TABELA */
     .top-bar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-bottom: 20px; }
     table { width:100%; border-collapse: collapse; }
     th, td { border:1px solid #ddd; padding:10px; text-align:center; font-size: 13px;}
     th { background:#0a2c6d; color:white; text-transform: uppercase; }
     tr:nth-child(even) { background-color: #f9f9f9; }
     
-    /* BOTÕES */
     button { padding:10px 18px; border:none; cursor:pointer; border-radius:4px; font-weight:bold; transition: 0.3s; }
     .btn-login { background:#0a2c6d; color:white; width: 100%; margin-top: 15px; }
     .btn-cancel { background:#c00000; color:white; }
@@ -43,7 +42,6 @@
 <body>
 
 <div id="login" class="login-box">
-    <img src="logo.png" style="width: 80px; margin-bottom: 10px;" alt="CBAX">
     <h2>Acesso Administrativo</h2>
     <div class="password-container">
         <input type="password" id="senha" placeholder="Digite a senha">
@@ -77,8 +75,6 @@
                     <option value="/03/26">Março</option>
                     <option value="/04/26">Abril</option>
                     <option value="/05/26">Maio</option>
-                    <option value="/06/26">Junho</option>
-                    <option value="/07/26">Julho</option>
                 </select>
             </div>
 
@@ -87,9 +83,7 @@
                 <button class="btn-export" onclick="exportarSelecionados()">Exportar Excel</button>
             </div>
 
-            <div class="counter">
-                Total: <span id="contador">0</span>
-            </div>
+            <div class="counter">Total: <span id="contador">0</span></div>
         </div>
 
         <table>
@@ -97,3 +91,117 @@
                 <tr>
                     <th><input type="checkbox" id="selecionarTodos" onclick="toggleTodos()"></th>
                     <th>Local Agendado</th>
+                    <th>Data</th>
+                    <th>Horário</th>
+                    <th>Nome</th>
+                    <th>Posto</th>
+                    <th>RG</th>
+                    <th>Telefone</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody id="tabela"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const SENHA_ADMIN = "B6CBAX2023";
+
+function toggleSenha() {
+    const inputSenha = document.getElementById("senha");
+    const eyeIcon = document.getElementById("eye-icon");
+    inputSenha.type = inputSenha.type === "password" ? "text" : "password";
+    eyeIcon.innerText = inputSenha.type === "password" ? "👁️" : "🙈";
+}
+
+function verificarSenha(){
+    if(document.getElementById("senha").value === SENHA_ADMIN){
+        document.getElementById("login").style.display="none";
+        document.getElementById("painel").style.display="block";
+        carregarDados();
+    } else { alert("Senha incorreta."); }
+}
+
+const firebaseConfig = {
+    apiKey: "AIzaSyD3Z8mJPvGrRzwpYLymAXYcRQat2ccUqVM",
+    authDomain: "agendamento-odonto-cbax.firebaseapp.com",
+    projectId: "agendamento-odonto-cbax",
+    storageBucket: "agendamento-odonto-cbax.firebasestorage.app",
+    messagingSenderId: "545212689993",
+    appId: "1:545212689993:web:b4b85a03bb2dcac9739998"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+async function carregarDados(){
+    const tabela = document.getElementById("tabela");
+    const filtroLocal = document.getElementById("filtroUnidadeAgendada").value;
+    const filtroMes = document.getElementById("filtroMes").value;
+    
+    tabela.innerHTML = "<tr><td colspan='9'>Buscando...</td></tr>";
+
+    try {
+        // MUDANÇA AQUI: Removemos o 'orderBy' temporariamente para evitar o erro de index
+        const snapshot = await db.collection("agendamentos").get();
+        tabela.innerHTML = "";
+        let total = 0;
+
+        snapshot.forEach(doc => {
+            const d = doc.data();
+            
+            // Compatibilidade campos antigos e novos
+            const localEfetivo = d.unidade || d.unidadeServe || "Não informado";
+            const dataEfetiva = d.data || "";
+
+            // Filtros
+            if(filtroLocal && !localEfetivo.includes(filtroLocal)) return;
+            if(filtroMes && !dataEfetiva.includes(filtroMes)) return;
+
+            total++;
+            tabela.innerHTML += `
+                <tr>
+                    <td><input type="checkbox" class="checkItem" value="${doc.id}"></td>
+                    <td><span class="badge-local">${localEfetivo}</span></td>
+                    <td>${dataEfetiva}</td>
+                    <td>${d.horario || ""}</td>
+                    <td>${d.nome || ""}</td>
+                    <td>${d.posto || ""}</td>
+                    <td>${d.rg || ""}</td>
+                    <td>${d.telefone || ""}</td>
+                    <td>${d.email || ""}</td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("contador").innerText = total;
+    } catch (e) { tabela.innerHTML = "Erro ao carregar."; }
+}
+
+function toggleTodos(){
+    const master = document.getElementById("selecionarTodos");
+    document.querySelectorAll(".checkItem").forEach(cb => cb.checked = master.checked);
+}
+
+async function cancelarSelecionados(){
+    const checks = document.querySelectorAll(".checkItem:checked");
+    if(checks.length === 0) return alert("Selecione algo.");
+    if(confirm("Excluir agendamentos?")){
+        for(let cb of checks) await db.collection("agendamentos").doc(cb.value).delete();
+        carregarDados();
+    }
+}
+
+function exportarSelecionados(){
+    let checks = document.querySelectorAll(".checkItem:checked");
+    if(checks.length === 0) return alert("Selecione para exportar.");
+    let dados = Array.from(checks).map(cb => {
+        let r = cb.closest('tr').cells;
+        return { "Local": r[1].innerText, "Data": r[2].innerText, "Hora": r[3].innerText, "Nome": r[4].innerText, "RG": r[6].innerText };
+    });
+    XLSX.writeFile(XLSX.utils.book_new(), "Relatorio.xlsx");
+}
+</script>
+</body>
+</html>
