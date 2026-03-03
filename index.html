@@ -3,128 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendamento Odontológico 2026</title>
+    <title>Agendamento Odontológico 2026 - CBA X</title>
+
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f9; margin: 0; padding: 0; }
-        header { background: #0a2c6d; color: white; text-align: center; padding: 20px; border-bottom: 5px solid #082152; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #f4f7f9; margin: 0; padding: 0; color: #1a1a1a; }
+        header { background: #0a2c6d; color: white; text-align: center; padding: 30px 15px; border-bottom: 5px solid #082152; }
+        header img { width: 80px; margin-bottom: 10px; }
+        header h1 { font-size: 1.3rem; margin: 5px 0; }
         .container { background: white; width: 94%; max-width: 500px; margin: 20px auto; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { font-size: 1.1rem; color: #0a2c6d; border-bottom: 2px solid #eee; padding-bottom: 8px; }
-        label { font-weight: bold; margin-top: 15px; display: block; font-size: 0.9rem; }
+        h2 { font-size: 1.1rem; color: #0a2c6d; border-bottom: 2px solid #eee; padding-bottom: 8px; margin-top: 25px; text-transform: uppercase; }
+        label { font-weight: 600; margin-top: 15px; display: block; font-size: 0.9rem; }
         input, select { width: 100%; padding: 12px; margin-top: 6px; border: 1px solid #ced4da; border-radius: 8px; font-size: 16px; }
-        .info-vagas { background: #fff3cd; color: #856404; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; text-align: center; border: 1px solid #ffeeba; }
-        .btn-principal { margin-top: 25px; padding: 18px; background: #063958; color: white; border: none; width: 100%; font-size: 18px; font-weight: bold; border-radius: 10px; cursor: pointer; }
-        .btn-principal:disabled { background: #ccc; }
+        
+        /* Contador Amarelo Estilo Inspeção */
+        .info-vagas { background: #fff3cd; color: #856404; padding: 12px; border-radius: 8px; border: 1px solid #ffeeba; margin-top: 15px; font-size: 0.9rem; font-weight: bold; text-align: center; }
+        
+        .btn-principal { margin-top: 30px; padding: 18px; background: #063958; color: white; border: none; width: 100%; font-size: 18px; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .btn-principal:disabled { background: #ccc; cursor: not-allowed; }
+        
+        .info-row { margin-bottom: 10px; font-size: 1.1rem; border-bottom: 1px solid #f2f2f2; padding-bottom: 5px; }
+        .info-label { font-weight: bold; color: #333; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Agendamento Odontológico</h1>
-    <p>CBA X - 2026</p>
+    <img src="logo.png" alt="Logo">
+    <h1>Agendamento Odontológico 2026</h1>
+    <p>Comando de Bombeiros de Área X</p>
 </header>
 
 <div class="container" id="formContainer">
     <h2>Dados do Militar</h2>
-    <input type="text" id="nome" placeholder="Nome Completo">
-    <input type="number" id="rg" placeholder="RG (somente números)">
-    
-    <h2>Local e Data</h2>
+    <label>Posto/Graduação:</label>
+    <select id="posto">
+        <option value="">Selecione</option>
+        <option>CEL BM</option><option>TC BM</option><option>MAJ BM</option><option>CAP BM</option><option>1º TEN BM</option><option>2º TEN BM</option><option>SUBTEN BM</option><option>1º SGT BM</option><option>2º SGT BM</option><option>3º SGT BM</option><option>CB BM</option><option>SD BM</option>
+    </select>
+
+    <label>Nome Completo:</label>
+    <input type="text" id="nome" placeholder="Nome">
+    <label>RG:</label>
+    <input type="number" id="rg" placeholder="Somente números">
+    <label>Telefone:</label>
+    <input type="text" id="telefone" placeholder="(XX) XXXXX-XXXX">
+
+    <h2>Agendamento</h2>
     <label>Unidade de Atendimento:</label>
     <select id="unidade" onchange="carregarDatas()">
         <option value="">Selecione</option>
-        <option value="1GMAR">1º GMAR - BOTAFOGO</option>
-        <option value="2GMAR">2º GMAR - BARRA (GBS)</option>
-        <option value="3GMAR">3º GMAR - COPACABANA</option>
-        <option value="4GMAR">4º GMAR - ITAIPU (CEPO)</option>
-    </select>
-
-    <label>Data:</label>
-    <select id="data" onchange="carregarHorarios()"></select>
-
-    <div id="vagasStatus" class="info-vagas" style="display:none;"></div>
-
-    <label>Horário:</label>
-    <select id="horario"></select>
-
-    <button class="btn-principal" id="btnAgendar" onclick="salvar()">Confirmar Agendamento</button>
-</div>
-
-<script>
-    // Configuração do seu Firebase (Mantenha os seus dados aqui)
-    const firebaseConfig = {
-        apiKey: "AIzaSyD3Z8mJPvGrRzwpYLymAXYcRQat2ccUqVM",
-        authDomain: "agendamento-odonto-cbax.firebaseapp.com",
-        projectId: "agendamento-odonto-cbax",
-        storageBucket: "agendamento-odonto-cbax.firebasestorage.app",
-        messagingSenderId: "545212689993",
-        appId: "1:545212689993:web:b4b85a03bb2dcac9739998"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    const datasMap = {
-        "1GMAR":["11/03/26","18/03/26"],
-        "2GMAR":["10/03/26","17/03/26","24/03/26"],
-        "3GMAR":["10/03/26","17/03/26"],
-        "4GMAR":["10/04/26","17/04/26"]
-    };
-
-    function carregarDatas(){
-        let uni = document.getElementById("unidade").value;
-        let selD = document.getElementById("data");
-        selD.innerHTML = "";
-        if(!uni) return;
-        datasMap[uni].forEach(d => {
-            let op = document.createElement("option"); op.value=d; op.text=d; selD.appendChild(op);
-        });
-        carregarHorarios();
-    }
-
-    async function carregarHorarios(){
-        let uni = document.getElementById("unidade").value;
-        let data = document.getElementById("data").value;
-        let selH = document.getElementById("horario");
-        let status = document.getElementById("vagasStatus");
-        
-        if(!uni || !data) return;
-        selH.innerHTML = "<option>Consultando...</option>";
-
-        // Horários do GBS (2GMAR)
-        let todos = (uni === "2GMAR") ? ["08:00","08:15","08:30","08:45","09:00","13:00","13:15"] : ["08:00","08:15","08:30"];
-
-        // BUSCA O QUE JÁ ESTÁ NO BANCO
-        const snapshot = await db.collection("agendamentos")
-            .where("unidade", "==", uni)
-            .where("data", "==", data)
-            .get();
-        
-        let ocupados = snapshot.docs.map(doc => doc.data().horario);
-        
-        // FILTRA: Só mostra o que NÃO está ocupado
-        let disponiveis = todos.filter(h => !ocupados.includes(h));
-
-        selH.innerHTML = "";
-        status.style.display = "block";
-
-        if(disponiveis.length > 0){
-            disponiveis.forEach(h => {
-                let op = document.createElement("option"); op.value=h; op.text=h; selH.appendChild(op);
-            });
-            status.innerHTML = `VAGAS DISPONÍVEIS: ${disponiveis.length}`;
-            document.getElementById("btnAgendar").disabled = false;
-        } else {
-            selH.innerHTML = "<option>LOTADO</option>";
-            status.innerHTML = "❌ DIA SEM VAGAS";
-            document.getElementById("btnAgendar").disabled = true;
-        }
-    }
-
-    async function salvar(){
-        // Função de salvar padrão (já enviada anteriormente)
-    }
-</script>
-</body>
-</html>
