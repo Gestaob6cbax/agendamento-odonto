@@ -9,194 +9,216 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
-body { font-family: Arial; background:#f2f4f8; margin:0; }
-header { background:#0a2c6d; color:white; text-align:center; padding:20px; }
-.container { max-width:1300px; margin:30px auto; background:white; padding:25px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
-table { width:100%; border-collapse: collapse; margin-top:20px;}
-th, td { border:1px solid #ddd; padding:8px; text-align:center;}
-th { background:#0a2c6d; color:white;}
-button { margin:5px; padding:8px 15px; background:#c00000; color:white; border:none; cursor:pointer;}
-button:hover { background:#900000;}
-select { padding:5px; margin:5px; }
-.top-bar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; }
-.counter { font-weight:bold; }
-.login-box { max-width:400px; margin:120px auto; background:white; padding:30px; text-align:center; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
-input[type=password] { padding:8px; width:100%; margin-top:10px; }
+    body { font-family: Arial; background:#f2f4f8; margin:0; }
+    header { background:#0a2c6d; color:white; text-align:center; padding:20px; }
+    .container { max-width:1300px; margin:30px auto; background:white; padding:25px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+    
+    /* LOGIN */
+    .login-box { max-width:400px; margin:120px auto; background:white; padding:30px; text-align:center; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+    .password-container { position: relative; width: 100%; margin-top: 10px; }
+    input[type=password], input[type=text] { padding:12px; width:100%; border:1px solid #ccc; border-radius:4px; box-sizing: border-box; }
+    .toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; background:none; border:none; font-size:18px; }
+
+    /* TABELA */
+    table { width:100%; border-collapse: collapse; margin-top:20px;}
+    th, td { border:1px solid #ddd; padding:8px; text-align:center; font-size: 13px;}
+    th { background:#0a2c6d; color:white;}
+    
+    /* BOTÕES */
+    button { margin:5px; padding:10px 15px; background:#c00000; color:white; border:none; cursor:pointer; border-radius:4px; font-weight:bold;}
+    button:hover { background:#900000;}
+    .btn-export { background: #28a745; }
+    .btn-export:hover { background: #1e7e34; }
+
+    .top-bar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+    .counter { font-weight:bold; }
+    .badge-local { background: #fff3cd; color: #856404; padding: 3px 6px; border-radius: 4px; font-weight: bold; border: 1px solid #ffeeba; }
 </style>
 </head>
 
 <body>
 
 <div id="login" class="login-box">
-<h2>Acesso Administrativo</h2>
-<input type="password" id="senha" placeholder="Digite a senha">
-<button onclick="verificarSenha()">Entrar</button>
+    <img src="logo.png" style="width: 80px; margin-bottom: 10px;" alt="CBAX">
+    <h2>Acesso Administrativo</h2>
+    <div class="password-container">
+        <input type="password" id="senha" placeholder="Digite a senha">
+        <button type="button" class="toggle-password" onclick="toggleSenha()">
+            <span id="eye-icon">👁️</span>
+        </button>
+    </div>
+    <button onclick="verificarSenha()" style="width:100%; margin-top:15px; background:#0a2c6d;">Entrar</button>
 </div>
 
 <div id="painel" style="display:none;">
+    <header>
+        <h1>Painel Administrativo</h1>
+        <p>Agendamento Odonto Inspeção 2026 - CBAX</p>
+    </header>
 
-<header>
-<h1>Painel Administrativo</h1>
-<p>Agendamento Odonto Inspeção 2026 - CBAX</p>
-</header>
+    <div class="container">
+        <div class="top-bar">
+            <div>
+                <label>Filtrar Local:</label>
+                <select id="filtroUnidadeAgendada" onchange="carregarDados()">
+                    <option value="">Todos os Locais</option>
+                    <option value="1GMAR">1º GMAR - BOTAFOGO</option>
+                    <option value="2GMAR">2º GMAR - BARRA (GBS)</option>
+                    <option value="3GMAR">3º GMAR - COPACABANA</option>
+                    <option value="4GMAR">4º GMAR - ITAIPU (CEPO)</option>
+                </select>
 
-<div class="container">
+                <select id="filtroMes" onchange="carregarDados()">
+                    <option value="">Todos os Meses</option>
+                    <option value="/03/26">Março</option>
+                    <option value="/04/26">Abril</option>
+                    <option value="/05/26">Maio</option>
+                    <option value="/06/26">Junho</option>
+                    <option value="/07/26">Julho</option>
+                </select>
+            </div>
 
-<div class="top-bar">
+            <div>
+                <button onclick="cancelarSelecionados()">Excluir Selecionados</button>
+                <button onclick="exportarSelecionados()" class="btn-export">Exportar Excel</button>
+            </div>
 
-<div>
-<select id="filtroUnidade" onchange="carregarDados()">
-<option value="">Todas as Unidades</option>
-<option>CBA X</option>
-<option>1º GMAR (Botafogo)</option>
-<option>2º GMAR (Barra da Tijuca)</option>
-<option>3º GMAR (Copacabana)</option>
-<option>4º GMAR (Itaipu)</option>
-<option>CER</option>
-</select>
+            <div class="counter">
+                Total: <span id="contador">0</span>
+            </div>
+        </div>
 
-<select id="filtroMes" onchange="carregarDados()">
-<option value="">Todos os Meses</option>
-<option value="/03/26">Março</option>
-<option value="/04/26">Abril</option>
-<option value="/05/26">Maio</option>
-<option value="/06/26">Junho</option>
-<option value="/07/26">Julho</option>
-</select>
-</div>
-
-<div>
-<button onclick="cancelarSelecionados()">Cancelar</button>
-<button onclick="exportarSelecionados()">Exportar</button>
-</div>
-
-<div class="counter">
-Total: <span id="contador">0</span>
-</div>
-
-</div>
-
-<table>
-<thead>
-<tr>
-<th><input type="checkbox" id="selecionarTodos" onclick="toggleTodos()"></th>
-<th>Unidade</th>
-<th>Data</th>
-<th>Horário</th>
-<th>Nome</th>
-<th>Posto</th>
-<th>RG</th>
-<th>Telefone</th>
-<th>Email</th>
-</tr>
-</thead>
-<tbody id="tabela"></tbody>
-</table>
-
-</div>
+        <table>
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selecionarTodos" onclick="toggleTodos()"></th>
+                    <th>Local Agendado</th>
+                    <th>Data</th>
+                    <th>Horário</th>
+                    <th>Nome</th>
+                    <th>Posto</th>
+                    <th>RG</th>
+                    <th>Telefone</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody id="tabela"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
+const SENHA_ADMIN = "B6CBAX2023";
 
-const SENHA_ADMIN = "B6CBAX2023"; // <<< ALTERE AQUI SE QUISER
+// FUNÇÃO DO OLHINHO
+function toggleSenha() {
+    const inputSenha = document.getElementById("senha");
+    const eyeIcon = document.getElementById("eye-icon");
+    if (inputSenha.type === "password") {
+        inputSenha.type = "text";
+        eyeIcon.innerText = "🙈";
+    } else {
+        inputSenha.type = "password";
+        eyeIcon.innerText = "👁️";
+    }
+}
 
 function verificarSenha(){
-const senha = document.getElementById("senha").value;
-if(senha === SENHA_ADMIN){
-document.getElementById("login").style.display="none";
-document.getElementById("painel").style.display="block";
-carregarDados();
-}else{
-alert("Senha incorreta.");
-}
+    const senha = document.getElementById("senha").value;
+    if(senha === SENHA_ADMIN){
+        document.getElementById("login").style.display="none";
+        document.getElementById("painel").style.display="block";
+        carregarDados();
+    } else {
+        alert("Senha incorreta.");
+    }
 }
 
+// CONFIGURAÇÃO FIREBASE
 const firebaseConfig = {
-apiKey: "AIzaSyD3Z8mJPvGrRzwpYLymAXYcRQat2ccUqVM",
-authDomain: "agendamento-odonto-cbax.firebaseapp.com",
-projectId: "agendamento-odonto-cbax",
-storageBucket: "agendamento-odonto-cbax.firebasestorage.app",
-messagingSenderId: "545212689993",
-appId: "1:545212689993:web:b4b85a03bb2dcac9739998"
+    apiKey: "AIzaSyD3Z8mJPvGrRzwpYLymAXYcRQat2ccUqVM",
+    authDomain: "agendamento-odonto-cbax.firebaseapp.com",
+    projectId: "agendamento-odonto-cbax",
+    storageBucket: "agendamento-odonto-cbax.firebasestorage.app",
+    messagingSenderId: "545212689993",
+    appId: "1:545212689993:web:b4b85a03bb2dcac9739998"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 async function carregarDados(){
+    const snapshot = await db.collection("agendamentos").orderBy("data","asc").orderBy("horario","asc").get();
+    const tabela = document.getElementById("tabela");
+    const filtroLocal = document.getElementById("filtroUnidadeAgendada").value;
+    const filtroMes = document.getElementById("filtroMes").value;
 
-const snapshot = await db.collection("agendamentos").orderBy("criadoEm","desc").get();
-const tabela = document.getElementById("tabela");
-const filtroUnidade = document.getElementById("filtroUnidade").value;
-const filtroMes = document.getElementById("filtroMes").value;
+    tabela.innerHTML="";
+    let total=0;
 
-tabela.innerHTML="";
-let total=0;
+    snapshot.forEach(doc=>{
+        const d = doc.data();
+        if(filtroLocal && d.unidade !== filtroLocal) return;
+        if(filtroMes && !d.data.includes(filtroMes)) return;
 
-snapshot.forEach(doc=>{
-const d = doc.data();
-
-if(filtroUnidade && d.unidadeServe !== filtroUnidade) return;
-if(filtroMes && !d.data.includes(filtroMes)) return;
-
-total++;
-
-tabela.innerHTML += `
-<tr>
-<td><input type="checkbox" class="checkItem" value="${doc.id}"></td>
-<td>${d.unidadeServe || ""}</td>
-<td>${d.data || ""}</td>
-<td>${d.horario || ""}</td>
-<td>${d.nome || ""}</td>
-<td>${d.posto || ""}</td>
-<td>${d.rg || ""}</td>
-<td>${d.telefone || ""}</td>
-<td>${d.email || ""}</td>
-</tr>
-`;
-});
-
-document.getElementById("contador").innerText = total;
-
+        total++;
+        tabela.innerHTML += `
+            <tr>
+                <td><input type="checkbox" class="checkItem" value="${doc.id}"></td>
+                <td><span class="badge-local">${d.unidade || ""}</span></td>
+                <td>${d.data || ""}</td>
+                <td>${d.horario || ""}</td>
+                <td>${d.nome || ""}</td>
+                <td>${d.posto || ""}</td>
+                <td>${d.rg || ""}</td>
+                <td>${d.telefone || ""}</td>
+                <td>${d.email || ""}</td>
+            </tr>
+        `;
+    });
+    document.getElementById("contador").innerText = total;
 }
 
 function toggleTodos(){
-const master = document.getElementById("selecionarTodos");
-const checks = document.querySelectorAll(".checkItem");
-checks.forEach(cb=> cb.checked = master.checked);
+    const master = document.getElementById("selecionarTodos");
+    const checks = document.querySelectorAll(".checkItem");
+    checks.forEach(cb=> cb.checked = master.checked);
 }
 
 async function cancelarSelecionados(){
-const checkboxes = document.querySelectorAll(".checkItem:checked");
-if(checkboxes.length === 0){ alert("Selecione ao menos um."); return; }
-
-if(!confirm("Confirmar cancelamento?")) return;
-
-for(const cb of checkboxes){
-await db.collection("agendamentos").doc(cb.value).delete();
-}
-
-carregarDados();
-alert("Cancelado com sucesso.");
+    const checkboxes = document.querySelectorAll(".checkItem:checked");
+    if(checkboxes.length === 0){ alert("Selecione ao menos um."); return; }
+    if(!confirm("Confirmar exclusão? Isso liberará as vagas novamente.")) return;
+    for(const cb of checkboxes){
+        await db.collection("agendamentos").doc(cb.value).delete();
+    }
+    carregarDados();
 }
 
 async function exportarSelecionados(){
-const checkboxes = document.querySelectorAll(".checkItem:checked");
-if(checkboxes.length === 0){ alert("Selecione ao menos um."); return; }
-
-let dados=[];
-for(const cb of checkboxes){
-const doc = await db.collection("agendamentos").doc(cb.value).get();
-dados.push(doc.data());
+    const checkboxes = document.querySelectorAll(".checkItem:checked");
+    if(checkboxes.length === 0){ alert("Selecione os agendamentos que deseja exportar."); return; }
+    
+    let dadosExport = [];
+    for(const cb of checkboxes){
+        const row = Array.from(document.querySelectorAll("#tabela tr")).find(tr => tr.querySelector('input').value === cb.value);
+        const cells = row.querySelectorAll('td');
+        dadosExport.push({
+            "Local Agendado": cells[1].innerText,
+            "Data": cells[2].innerText,
+            "Horário": cells[3].innerText,
+            "Nome": cells[4].innerText,
+            "Posto": cells[5].innerText,
+            "RG": cells[6].innerText,
+            "Telefone": cells[7].innerText,
+            "Email": cells[8].innerText
+        });
+    }
+    const ws = XLSX.utils.json_to_sheet(dadosExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Agendamentos");
+    XLSX.writeFile(wb, "agendamentos_odonto_2026.xlsx");
 }
-
-const worksheet = XLSX.utils.json_to_sheet(dados);
-const workbook = XLSX.utils.book_new();
-XLSX.utils.book_append_sheet(workbook, worksheet, "Agendamentos");
-XLSX.writeFile(workbook, "agendamentos_cbax_2026.xlsx");
-}
-
 </script>
-
 </body>
 </html>
