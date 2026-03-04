@@ -24,67 +24,71 @@
 
         const style = `
             body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
-            .header { background: #0056b3; color: white; padding: 30px 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-            .header h1 { margin: 0; font-size: 24px; text-transform: uppercase; }
-            .container { max-width: 1400px; margin: 30px auto; padding: 0 20px; }
-            .stats-row { display: flex; gap: 20px; margin-bottom: 25px; }
-            .stat-card { background: white; padding: 20px; border-radius: 12px; flex: 1; border-left: 8px solid #0056b3; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-            .stat-card strong { font-size: 28px; color: #333; }
-            .controls { background: white; padding: 20px; border-radius: 12px; display: flex; gap: 15px; align-items: center; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-            .controls select { padding: 12px; border-radius: 8px; border: 1px solid #ddd; flex-grow: 1; }
-            .btn-action { padding: 12px 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+            .header { background: #0056b3; color: white; padding: 25px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+            .container { max-width: 1300px; margin: 20px auto; padding: 0 20px; }
+            .stat-card { background: white; padding: 15px; border-radius: 10px; border-left: 6px solid #0056b3; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; width: fit-content; min-width: 200px; }
+            .controls { background: white; padding: 15px; border-radius: 10px; display: flex; gap: 10px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+            select { padding: 10px; border-radius: 5px; border: 1px solid #ccc; flex-grow: 1; }
+            .btn { padding: 10px 15px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; }
             .btn-danger { background: #dc3545; color: white; display: none; }
-            .btn-print { background: #555; color: white; }
-            .table-container { background: white; border-radius: 12px; overflow-x: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-            table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-            th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 12px; color: #666; border-bottom: 2px solid #eee; text-transform: uppercase; }
-            td { padding: 12px 15px; font-size: 13px; border-bottom: 1px solid #eee; }
-            .badge-local { background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
-            .btn-del { color: #dc3545; background: none; border: none; cursor: pointer; font-size: 16px; }
-            @media print { .header, .controls, .col-check, .col-del { display: none; } }
+            .btn-print { background: #6c757d; color: white; }
+            .table-container { background: white; border-radius: 10px; overflow-x: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+            table { width: 100%; border-collapse: collapse; }
+            th { background: #f8f9fa; padding: 12px; text-align: left; font-size: 13px; border-bottom: 2px solid #dee2e6; }
+            td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+            .badge { background: #e7f1ff; color: #0056b3; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+            @media print { .header, .controls, .col-check, .col-del { display: none; } .container { max-width: 100%; } }
         `;
 
-        const sheet = document.createElement('style');
-        sheet.innerHTML = style;
-        document.head.appendChild(sheet);
+        const sheet = document.createElement('style'); sheet.innerHTML = style; document.head.appendChild(sheet);
 
-        // BUSCA EM "agendamentos" - Conforme sua planilha original
-        onSnapshot(query(collection(db, "agendamentos"), orderBy("data", "asc")), (snapshot) => {
-            todosAgendamentos = [];
-            snapshot.forEach((doc) => { todosAgendamentos.push({ id: doc.id, ...doc.data() }); });
-            window.renderizarTabela();
-        });
+        // BUSCA UNIVERSAL (Tenta agendamentos e agendamentos_odonto)
+        const carregarDados = (colecao) => {
+            onSnapshot(query(collection(db, colecao), orderBy("timestamp", "desc")), (snapshot) => {
+                if (!snapshot.empty) {
+                    todosAgendamentos = [];
+                    snapshot.forEach((doc) => { todosAgendamentos.push({ id: doc.id, ...doc.data() }); });
+                    window.renderizarTabela();
+                }
+            });
+        };
+        
+        carregarDados("agendamentos"); // Tenta a primeira
+        carregarDados("agendamentos_odonto"); // Tenta a segunda
 
         window.renderizarTabela = function() {
             const filtroLocal = document.getElementById("filtroLocal").value;
             const corpo = document.getElementById("corpoTabela");
-            const filtrados = todosAgendamentos.filter(d => filtroLocal === "" || d.local === filtroLocal || d.localInspeção === filtroLocal);
+            const filtrados = todosAgendamentos.filter(d => filtroLocal === "" || (d.local || d.localInspeção) === filtroLocal);
 
-            corpo.innerHTML = filtrados.length > 0 ? "" : "<tr><td colspan='10' style='text-align:center; padding: 40px;'>Nenhum registro encontrado.</td></tr>";
-            
+            corpo.innerHTML = "";
             filtrados.forEach(d => {
+                // Aqui o código aceita qualquer nome de campo que você tenha usado antes
+                const nomeMilitar = d.nome || d.Nome || "---";
+                const postoMilitar = d.posto || d.graduacao || d.graduação || "---";
+                const rgMilitar = d.rg || d.RG || "---";
+                const localMilitar = d.local || d.localInspeção || "---";
+                const dataMilitar = d.data || d.Data || "---";
+
                 corpo.innerHTML += `
                     <tr>
                         <td class="col-check"><input type="checkbox" class="check-militar" value="${d.id}" onchange="toggleBotaoMassa()"></td>
-                        <td><span class="badge-local">${d.local || d.localInspeção || '---'}</span></td>
-                        <td>${d.unidadeOrigem || '---'}</td>
-                        <td><strong>${d.data || '---'}</strong></td>
-                        <td>${d.horário || d.hora || '---'}</td>
-                        <td>${d.nome || '---'}</td>
-                        <td>${d.posto || d.graduação || '---'}</td>
-                        <td>${d.rg || '---'}</td>
-                        <td>${d.telefone || '---'}</td>
-                        <td class="col-del"><button class="btn-del" onclick="excluirUm('${d.id}', '${d.nome}')">🗑️</button></td>
+                        <td><span class="badge">${localMilitar}</span></td>
+                        <td>${dataMilitar}</td>
+                        <td><strong>${nomeMilitar}</strong></td>
+                        <td>${postoMilitar}</td>
+                        <td>${rgMilitar}</td>
+                        <td class="col-del"><button style="color:red; background:none; border:none; cursor:pointer;" onclick="excluirUm('${d.id}', '${nomeMilitar}')">🗑️</button></td>
                     </tr>`;
             });
-
             document.getElementById("contagem").innerText = filtrados.length;
-            document.getElementById("btnDeletarVarios").style.display = "none";
         };
 
         window.excluirUm = async function(id, nome) {
-            if (confirm(`Excluir agendamento de: ${nome}?`)) {
-                await deleteDoc(doc(db, "agendamentos", id));
+            if (confirm(`Excluir agendamento de ${nome}?`)) {
+                // Tenta excluir das duas coleções possíveis
+                await deleteDoc(doc(db, "agendamentos", id)).catch(() => {});
+                await deleteDoc(doc(db, "agendamentos_odonto", id)).catch(() => {});
             }
         };
 
@@ -96,45 +100,40 @@
 
         window.toggleBotaoMassa = function() {
             const selecionados = document.querySelectorAll(".check-militar:checked").length;
-            document.getElementById("btnDeletarVarios").style.display = selecionados > 0 ? "block" : "none";
-            document.getElementById("numSelecionados").innerText = selecionados;
+            document.getElementById("btnDeletarVarios").style.display = selecionados > 0 ? "inline-block" : "none";
+            document.getElementById("numSel").innerText = selecionados;
         };
 
         window.excluirSelecionados = async function() {
             const ids = Array.from(document.querySelectorAll(".check-militar:checked")).map(cb => cb.value);
             if (confirm(`Excluir ${ids.length} registros?`)) {
-                for (const id of ids) { await deleteDoc(doc(db, "agendamentos", id)); }
+                for (const id of ids) {
+                    await deleteDoc(doc(db, "agendamentos", id)).catch(() => {});
+                    await deleteDoc(doc(db, "agendamentos_odonto", id)).catch(() => {});
+                }
             }
         };
     </script>
 </head>
 <body>
-    <div class="header">
-        <h1>Painel ADM - Odontologia 2026</h1>
-        <p>CBA X - Comando de Bombeiros de Área</p>
-    </div>
+    <div class="header"><h1>Painel ADM - Odontologia 2026</h1></div>
     <div class="container">
-        <div class="stats-row">
-            <div class="stat-card"><span>Militares Agendados</span><br><strong id="contagem">0</strong></div>
-        </div>
+        <div class="stat-card"><span>Militares na Lista:</span> <strong id="contagem">0</strong></div>
         <div class="controls">
             <select id="filtroLocal" onchange="renderizarTabela()">
                 <option value="">Todos os Locais</option>
-                <option value="1GMAR">1º GMAR</option>
-                <option value="2GMAR">2º GMAR</option>
-                <option value="3GMAR">3º GMAR</option>
-                <option value="4GMAR">4º GMAR</option>
-                <option value="CBA X">CBA X</option>
+                <option value="1GMAR">1º GMAR</option><option value="2GMAR">2º GMAR</option>
+                <option value="3GMAR">3º GMAR</option><option value="4GMAR">4º GMAR</option>
             </select>
-            <button id="btnDeletarVarios" class="btn-action btn-danger" onclick="excluirSelecionados()">🗑️ Excluir (<span id="numSelecionados">0</span>)</button>
-            <button class="btn-action btn-print" onclick="window.print()">🖨️ Imprimir Lista</button>
+            <button id="btnDeletarVarios" class="btn btn-danger" onclick="excluirSelecionados()">Excluir Selecionados (<span id="numSel">0</span>)</button>
+            <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir</button>
         </div>
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
                         <th class="col-check"><input type="checkbox" id="checkTodos" onclick="selecionarTudo()"></th>
-                        <th>Local</th><th>Unidade</th><th>Data</th><th>Horário</th><th>Nome</th><th>Posto</th><th>RG</th><th>Telefone</th><th class="col-del">Ação</th>
+                        <th>Local</th><th>Data</th><th>Nome</th><th>Posto/Grad</th><th>RG</th><th class="col-del">Ação</th>
                     </tr>
                 </thead>
                 <tbody id="corpoTabela"></tbody>
