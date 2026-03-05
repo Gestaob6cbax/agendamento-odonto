@@ -171,12 +171,86 @@
     <label>Data Escolhida</label>
     <input type="date" id="data">
 
-    <label>Horário</label>
-    <select id="horario">
-        <option value="">Selecione...</option>
-        <option>08:00</option><option>09:00</option><option>10:00</option>
-        <option>11:00</option><option>13:00</option><option>14:00</option><option>15:00</option>
-    </select>
+    <label>Local do Atendimento (Destino)</label>
+<select id="unidade" onchange="configurarAgenda()">
+    <option value="">Selecione o local...</option>
+    <option value="1GMAR">1º GMAR - BOTAFOGO (Quartas)</option>
+    <option value="2GMAR">2º GMAR - BARRA (Terças)</option>
+    <option value="3GMAR">3º GMAR - COPACABANA (Terças)</option>
+    <option value="4GMAR">4º GMAR - ITAIPU (Sextas)</option>
+</select>
+
+<label>Data Escolhida</label>
+<input type="date" id="data" onchange="validarData()" disabled>
+<small id="avisoData" style="color: #666; font-size: 11px;">Selecione o local primeiro.</small>
+
+<label>Horário</label>
+<select id="horario" disabled>
+    <option value="">Selecione a data primeiro...</option>
+</select>
+
+<script>
+// Configuração das Datas Permitidas (Baseado na sua lista)
+const agendaConfig = {
+    "1GMAR": {
+        diaSemana: 3, // Quarta
+        datas: ["2026-03-11", "2026-03-18", "2026-03-25", "2026-04-01", "2026-04-08", "2026-05-06", "2026-05-13", "2026-05-20", "2026-05-27", "2026-06-03", "2026-06-10", "2026-06-17", "2026-06-24", "2026-07-01", "2026-07-08", "2026-07-15", "2026-07-22", "2026-07-29"],
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00", "11:15"]
+    },
+    "2GMAR": {
+        diaSemana: 2, // Terça
+        datas: ["2026-03-10", "2026-03-17", "2026-03-24", "2026-03-31", "2026-04-28", "2026-05-05", "2026-05-12", "2026-05-19", "2026-05-26", "2026-06-02", "2026-06-09", "2026-06-16", "2026-06-23", "2026-030-30", "2026-07-07", "2026-07-14", "2026-07-21", "2026-07-28"],
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00", "11:15", "13:00", "13:15", "13:30", "13:45", "14:00", "14:15", "14:30"]
+    },
+    "3GMAR": {
+        diaSemana: 2, // Terça
+        datas: ["2026-03-10", "2026-03-17", "2026-03-24", "2026-03-31", "2026-04-07", "2026-04-14", "2026-04-28", "2026-05-05", "2026-05-12", "2026-05-19", "2026-05-26", "2026-06-02", "2026-06-09", "2026-06-16", "2026-06-23", "2026-030-30", "2026-07-07", "2026-07-14", "2026-07-21", "2026-07-28"],
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30"]
+    },
+    "4GMAR": {
+        diaSemana: 5, // Sexta
+        datas: ["2026-04-10", "2026-04-17", "2026-05-08", "2026-05-15", "2026-05-22", "2026-05-29", "2026-06-05", "2026-06-12", "2026-06-19", "2026-06-26", "2026-07-03", "2026-07-10", "2026-07-17", "2026-07-24", "2026-07-31"],
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00"]
+    }
+};
+
+function configurarAgenda() {
+    const local = document.getElementById("unidade").value;
+    const campoData = document.getElementById("data");
+    const aviso = document.getElementById("avisoData");
+    
+    if (local) {
+        campoData.disabled = false;
+        campoData.value = "";
+        aviso.innerText = "Escolha uma data (Atenção aos dias da semana)";
+        document.getElementById("horario").disabled = true;
+    } else {
+        campoData.disabled = true;
+        aviso.innerText = "Selecione o local primeiro.";
+    }
+}
+
+function validarData() {
+    const local = document.getElementById("unidade").value;
+    const dataSelecionada = document.getElementById("data").value;
+    const campoHorario = document.getElementById("horario");
+    
+    if (!agendaConfig[local].datas.includes(dataSelecionada)) {
+        alert("Esta data não possui atendimento para este quartel. Verifique o cronograma.");
+        document.getElementById("data").value = "";
+        campoHorario.disabled = true;
+        return;
+    }
+
+    // Se a data for válida, carrega os horários do quartel
+    campoHorario.disabled = false;
+    campoHorario.innerHTML = '<option value="">Selecione o horário...</option>';
+    
+    agendaConfig[local].horarios.forEach(hora => {
+        campoHorario.innerHTML += `<option value="${hora}">${hora}</option>`;
+    });
+}
+</script>
 
     <button onclick="enviarDados()">Confirmar Agendamento Premium</button>
     <div class="footer">CBA X - Comando de Bombeiros de Área</div>
