@@ -20,13 +20,11 @@
         input, select { width: 100%; padding: 14px; margin-top: 6px; border: 2px solid #dfe4ea; border-radius: 10px; box-sizing: border-box; font-size: 16px; background-color: #f4f7f6; }
         .vagas-badge { margin-top: 10px; padding: 12px; border-radius: 10px; text-align: center; font-size: 0.9rem; font-weight: bold; display: none; border: 1px solid; }
         .btn-confirmar { background: linear-gradient(135deg, var(--cba-blue) 0%, #1545a2 100%); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 30px; font-size: 1.1rem; text-transform: uppercase; }
-        
         #comprovante { display: none; border: 3px double var(--cba-blue); padding: 25px; border-radius: 10px; background: #fff; margin-top: 10px; }
         .comprovante-header { text-align: center; border-bottom: 2px solid var(--cba-blue); padding-bottom: 15px; margin-bottom: 20px; }
         .item-doc { margin-bottom: 12px; font-size: 1rem; border-bottom: 1px solid #eee; padding-bottom: 5px; color: #222; }
         .item-doc strong { color: var(--cba-blue); font-size: 0.8rem; display: block; }
         .btn-print { background: #333; color: white; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; margin-top: 15px; cursor: pointer; border: none; text-transform: uppercase; }
-        
         @media print { body * { visibility: hidden; } #comprovante, #comprovante * { visibility: visible; } #comprovante { position: absolute; left: 0; top: 0; width: 100%; border: 2px solid #000; } .no-print { display: none !important; } }
     </style>
 </head>
@@ -55,7 +53,7 @@
             <option>DBM 3/M (Recreio)</option>
             <option>DBM 4/M (Guaratiba)</option>
             <option>DBM 5/M (Sepetiba)</option>
-            <option>DBM 6/M (Piratiniga)</option>
+            <option>DBM 6/M (Itaipu)</option>
         </select>
 
         <label>Posto / Graduação</label>
@@ -83,9 +81,9 @@
         <select id="unidadeDestino" onchange="atualizarDatas()">
             <option value="">Escolha para onde deseja ir...</option>
             <option value="1GMAR">1º GMAR - BOTAFOGO</option>
-            <option value="2GMAR">2º GMAR - BARRA(GBS - ATÉ A INAUGURAÇÃO DA UNIDADE)</option>
+            <option value="2GMAR">2º GMAR - BARRA (GBS - ATÉ A INAUGURAÇÃO DA UNIDADE)</option>
             <option value="3GMAR">3º GMAR - COPACABANA</option>
-            <option value="4GMAR">4º GMAR - ITAIPU(CEPO)</option>
+            <option value="4GMAR">4º GMAR - ITAIPU (CEPO)</option>
         </select>
 
         <label>Data Disponível</label>
@@ -103,7 +101,8 @@
     <div id="comprovante">
         <div class="comprovante-header">
             <img src="https://raw.githubusercontent.com/Gestaob6cbax/INSPECAO-ODONTOLOGICA-CBA-X-2026/main/logo.png" style="width:60px"><br>
-            <strong>CBA X - COMANDO DE BOMBEIROS DE ÁREA</strong><br>
+            <strong>ESTADO DO RIO DE JANEIRO</strong><br>
+            <small>CBA X - COMANDO DE BOMBEIROS DE ÁREA</small><br>
             <h3 style="margin:10px 0; color:var(--cba-blue)">COMPROVANTE DE AGENDAMENTO</h3>
         </div>
         <div id="resumo-dados"></div>
@@ -113,18 +112,28 @@
 </div>
 
 <script>
-// Dados do Firebase mantidos conforme sua configuração
+const agendaConfig = {
+    "1GMAR": { 
+        datas: ["11/03/2026", "18/03/2026", "25/03/2026", "01/04/2026", "08/04/2026", "06/05/2026", "13/05/2026", "20/05/2026", "27/05/2026", "03/06/2026", "10/06/2026", "17/06/2026", "24/06/2026", "01/07/2026", "08/07/2026", "15/07/2026", "22/07/2026", "29/07/2026"], 
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00", "11:15"] 
+    },
+    "2GMAR": { 
+        datas: ["10/03/2026", "17/03/2026", "24/03/2026", "31/03/2026", "28/04/2026", "05/05/2026", "12/05/2026", "19/05/2026", "26/05/2026", "02/06/2026", "09/06/2026", "16/06/2026", "23/06/2026", "30/06/2026", "07/07/2026", "14/07/2026", "21/07/2026", "28/07/2026"], 
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00", "11:15", "13:00", "13:15", "13:30", "13:45", "14:00", "14:15", "14:30"] 
+    },
+    "3GMAR": { 
+        datas: ["10/03/2026", "17/03/2026", "24/03/2026", "31/03/2026", "07/04/2026", "14/04/2026", "28/04/2026", "05/05/2026", "12/05/2026", "19/05/2026", "26/05/2026", "02/06/2026", "09/06/2026", "16/06/2026", "23/06/2026", "30/06/2026", "07/07/2026", "14/07/2026", "21/07/2026", "28/07/2026"], 
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30"] 
+    },
+    "4GMAR": { 
+        datas: ["10/04/2026", "17/04/2026", "08/05/2026", "15/05/2026", "22/05/2026", "29/05/2026", "05/06/2026", "12/06/2026", "19/06/2026", "26/06/2026", "03/07/2026", "10/07/2026", "17/07/2026", "24/07/2026", "31/07/2026"], 
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00"] 
+    }
+};
+
 const firebaseConfig = { apiKey: "AIzaSyD3Z8mJPvGrRzwpYLymAXYcRQat2ccUqVM", authDomain: "agendamento-odonto-cbax.firebaseapp.com", projectId: "agendamento-odonto-cbax", storageBucket: "agendamento-odonto-cbax.firebasestorage.app", messagingSenderId: "545212689993", appId: "1:545212689993:web:b4b85a03bb2dcac9739998" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
-// Configuração de datas por unidade
-const agendaConfig = {
-    "1GMAR": { datas: ["11/03/2026", "18/03/2026", "25/03/2026"], horarios: ["08:00", "08:15", "08:30", "08:45", "09:00"] },
-    "2GMAR": { datas: ["10/03/2026", "17/03/2026", "24/03/2026"], horarios: ["08:00", "08:15", "08:30", "08:45", "09:00"] },
-    "3GMAR": { datas: ["10/03/2026", "17/03/2026"], horarios: ["08:00", "08:15", "08:30"] },
-    "4GMAR": { datas: ["10/04/2026", "17/04/2026"], horarios: ["08:00", "08:15", "08:30"] }
-};
 
 function atualizarDatas() {
     const local = document.getElementById("unidadeDestino").value;
@@ -166,22 +175,26 @@ async function salvarAgendamento() {
 
     if (Object.values(d).some(v => !v)) return alert("Preencha todos os campos!");
     btn.disabled = true;
-
     try {
         const check = await db.collection("agendamentos").where("rg", "==", d.rg).get();
         if (!check.empty) { btn.disabled = false; return alert("Este RG já possui um agendamento!"); }
-        
         await db.collection("agendamentos").add({ ...d, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-        
         document.getElementById('form-content').style.display = 'none';
         document.getElementById('main-header').style.display = 'none';
         document.getElementById('comprovante').style.display = 'block';
         
+        // Mapeamento para exibição amigável no comprovante
+        let localTexto = d.unidadeDestino;
+        if(d.unidadeDestino === "1GMAR") localTexto = "1º GMAR - BOTAFOGO";
+        if(d.unidadeDestino === "2GMAR") localTexto = "2º GMAR - BARRA (GBS)";
+        if(d.unidadeDestino === "3GMAR") localTexto = "3º GMAR - COPACABANA";
+        if(d.unidadeDestino === "4GMAR") localTexto = "4º GMAR - ITAIPU (CEPO)";
+
         document.getElementById('resumo-dados').innerHTML = `
             <div class="item-doc"><strong>UNIDADE DE ORIGEM:</strong> ${d.unidadeOrigem}</div>
             <div class="item-doc"><strong>MILITAR:</strong> ${d.posto} ${d.nome}</div>
             <div class="item-doc"><strong>RG:</strong> ${d.rg}</div>
-            <div class="item-doc"><strong>LOCAL DA INSPEÇÃO:</strong> ${d.unidadeDestino}</div>
+            <div class="item-doc"><strong>LOCAL DA INSPEÇÃO:</strong> ${localTexto}</div>
             <div class="item-doc"><strong>DATA E HORA:</strong> ${d.data} às ${d.horario}h</div>
         `;
     } catch (e) { alert("Erro ao salvar!"); btn.disabled = false; }
