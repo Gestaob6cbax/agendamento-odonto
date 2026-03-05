@@ -9,14 +9,13 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <style>
-        /* Mesma paleta de cores e estilo PREMIUM do seu ADM */
         :root { 
             --primary-blue: #0a2c6d; 
-            --gold: #d4af37; /* Toque de ouro para premium */
-            --bg-page: #dbe2ef; /* Azul acinzentado suave para o fundo */
-            --bg-card: #ffffff; /* Fundo do formulário branco puro para contraste */
+            --gold: #d4af37;
+            --bg-page: #dbe2ef;
+            --bg-card: #ffffff;
             --text-main: #0a2c6d;
-            --text-label: #4a5568; /* Azul escuro suave para labels */
+            --text-label: #4a5568;
         }
         
         body { 
@@ -32,13 +31,12 @@
             background: var(--bg-card); 
             padding: 45px; 
             border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(10, 44, 109, 0.15); /* Sombra azulada suave */
+            box-shadow: 0 15px 35px rgba(10, 44, 109, 0.15); 
             border-top: 12px solid var(--primary-blue); 
             position: relative;
             overflow: hidden;
         }
 
-        /* Detalhe Premium de Ouro */
         .container::after {
             content: '';
             position: absolute;
@@ -48,7 +46,6 @@
         }
         
         header { text-align: center; margin-bottom: 35px; }
-        header img { width: 90px; height: auto; margin-bottom: 12px; }
         header h2 { color: var(--text-main); margin: 0; text-transform: uppercase; letter-spacing: 1.5px; font-size: 22px; font-weight: 800; }
         header p { color: #666; font-size: 15px; margin: 5px 0 0; }
 
@@ -70,88 +67,54 @@
             border-radius: 10px; 
             font-size: 16px; 
             outline: none; 
-            transition: 0.3s; 
             box-sizing: border-box; 
-            background: #f9f9f9; /* Fundo dos campos suave */
-            color: #333;
+            background: #f9f9f9;
         }
         
-        input:focus, select:focus { 
-            border-color: #7f9fdb; /* Borda azul mais clara ao focar */
-            background: #ffffff; /* Fundo branco ao focar */
-            box-shadow: 0 0 10px rgba(10, 44, 109, 0.1); 
-        }
+        input:focus, select:focus { border-color: #7f9fdb; background: #ffffff; }
 
         button { 
-            width: 100%; 
-            padding: 18px; 
+            width: 100%; padding: 18px; 
             background: var(--primary-blue); 
-            color: white; 
-            border: none; 
-            border-radius: 12px; 
-            font-weight: 800; 
-            font-size: 17px; 
-            cursor: pointer; 
-            margin-top: 35px; 
-            transition: 0.4s; 
-            text-transform: uppercase; 
-            letter-spacing: 1.5px; 
-            box-shadow: 0 5px 15px rgba(10, 44, 109, 0.2);
+            color: white; border: none; 
+            border-radius: 12px; font-weight: 800; 
+            font-size: 17px; cursor: pointer; 
+            margin-top: 35px; text-transform: uppercase; 
+            letter-spacing: 1.5px;
         }
         
-        button:hover { 
-            background: #082152; 
-            transform: translateY(-2px); 
-            box-shadow: 0 8px 20px rgba(10, 44, 109, 0.3); 
-        }
+        button:hover { background: #082152; transform: translateY(-2px); }
 
         .success-area { display: none; text-align: center; padding: 20px; }
         .success-icon { font-size: 60px; color: #28a745; margin-bottom: 20px; }
-        
-        .info-box { 
-            background: #f8f9fa; 
-            border-left: 5px solid var(--primary-blue); 
-            padding: 20px; 
-            text-align: left; 
-            margin-top: 25px; 
-            font-size: 15px; 
-            line-height: 1.7; 
-            border-radius: 8px;
-            color: #333;
-        }
-
-        .footer { 
-            text-align: center; 
-            margin-top: 35px; 
-            font-size: 12px; 
-            color: #7f8c8d; 
-            text-transform: uppercase; 
-            letter-spacing: 1px;
-            font-weight: bold;
-        }
+        .info-box { background: #f8f9fa; border-left: 5px solid var(--primary-blue); padding: 20px; text-align: left; margin-top: 25px; border-radius: 8px; }
+        .footer { text-align: center; margin-top: 35px; font-size: 12px; color: #7f8c8d; text-transform: uppercase; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container" id="form-container">
     <header>
-        <img src="logo.png" alt="Logo CBA X" onerror="this.style.display='none';">
         <h2>Agendamento Odontológico</h2>
         <p>Sistema de Saúde CBA X - Inspeção 2026</p>
     </header>
 
-   <select id="posto" required>
-            <option value="">Selecione seu Posto / Graduação</option>
-            <option>SD BM</option><option>CB BM</option><option>3º SGT BM</option>
-            <option>2º SGT BM</option><option>1º SGT BM</option><option>SUBTEN BM</option>
-            <option>2º TEN BM</option><option>1º TEN BM</option><option>CAP BM</option>
-            <option>MAJ BM</option><option>TEN CEL BM</option><option>CEL BM</option>
-        </select>
-        <label>Nome Completo (Sem abreviações):</label>
-        <input type="text" id="nome" placeholder="NOME COMPLETO">
-        <label>RG Militar:</label>
-        <input type="number" id="rg" placeholder="Apenas números">
-        <label>Unidade de Origem:</label>
+    <label>Posto / Graduação</label>
+    <select id="posto">
+        <option value="">Selecione...</option>
+        <option>SD BM</option><option>CB BM</option><option>3º SGT BM</option>
+        <option>2º SGT BM</option><option>1º SGT BM</option><option>SUBTEN BM</option>
+        <option>2º TEN BM</option><option>1º TEN BM</option><option>CAP BM</option>
+        <option>MAJ BM</option><option>TEN CEL BM</option><option>CEL BM</option>
+    </select>
+
+    <label>Nome Completo (Sem abreviações)</label>
+    <input type="text" id="nome" placeholder="NOME COMPLETO">
+
+    <label>RG Militar</label>
+    <input type="number" id="rg" placeholder="Apenas números">
+
+    <label>Unidade de Origem</label>
     <select id="unidadeServe">
         <option value="">Selecione sua unidade...</option>
         <option>CBA X sed</option><option>1º GMAR</option><option>2º GMAR</option><option>3º GMAR</option>
@@ -160,97 +123,22 @@
     </select>
 
     <label>Local do Atendimento (Destino)</label>
-    <select id="unidade">
+    <select id="unidade" onchange="configurarAgenda()">
         <option value="">Selecione o local...</option>
-        <option value="1GMAR">1º GMAR - BOTAFOGO</option>
-        <option value="2GMAR">2º GMAR - BARRA (GBS)</option>
-        <option value="3GMAR">3º GMAR - COPACABANA</option>
-        <option value="4GMAR">4º GMAR - ITAIPU (CEPO)</option>
+        <option value="1GMAR">1º GMAR - BOTAFOGO (Quartas)</option>
+        <option value="2GMAR">2º GMAR - BARRA (Terças)</option>
+        <option value="3GMAR">3º GMAR - COPACABANA (Terças)</option>
+        <option value="4GMAR">4º GMAR - ITAIPU (Sextas)</option>
     </select>
 
     <label>Data Escolhida</label>
-    <input type="date" id="data">
+    <input type="date" id="data" onchange="validarData()" disabled>
+    <small id="avisoData" style="color: #666; font-size: 11px;">Selecione o local primeiro.</small>
 
-    <label>Local do Atendimento (Destino)</label>
-<select id="unidade" onchange="configurarAgenda()">
-    <option value="">Selecione o local...</option>
-    <option value="1GMAR">1º GMAR - BOTAFOGO (Quartas)</option>
-    <option value="2GMAR">2º GMAR - BARRA (Terças)</option>
-    <option value="3GMAR">3º GMAR - COPACABANA (Terças)</option>
-    <option value="4GMAR">4º GMAR - ITAIPU (Sextas)</option>
-</select>
-
-<label>Data Escolhida</label>
-<input type="date" id="data" onchange="validarData()" disabled>
-<small id="avisoData" style="color: #666; font-size: 11px;">Selecione o local primeiro.</small>
-
-<label>Horário</label>
-<select id="horario" disabled>
-    <option value="">Selecione a data primeiro...</option>
-</select>
-
-<script>
-// Configuração das Datas Permitidas (Baseado na sua lista)
-const agendaConfig = {
-    "1GMAR": {
-        diaSemana: 3, // Quarta
-        datas: ["2026-03-11", "2026-03-18", "2026-03-25", "2026-04-01", "2026-04-08", "2026-05-06", "2026-05-13", "2026-05-20", "2026-05-27", "2026-06-03", "2026-06-10", "2026-06-17", "2026-06-24", "2026-07-01", "2026-07-08", "2026-07-15", "2026-07-22", "2026-07-29"],
-        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00", "11:15"]
-    },
-    "2GMAR": {
-        diaSemana: 2, // Terça
-        datas: ["2026-03-10", "2026-03-17", "2026-03-24", "2026-03-31", "2026-04-28", "2026-05-05", "2026-05-12", "2026-05-19", "2026-05-26", "2026-06-02", "2026-06-09", "2026-06-16", "2026-06-23", "2026-030-30", "2026-07-07", "2026-07-14", "2026-07-21", "2026-07-28"],
-        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00", "11:15", "13:00", "13:15", "13:30", "13:45", "14:00", "14:15", "14:30"]
-    },
-    "3GMAR": {
-        diaSemana: 2, // Terça
-        datas: ["2026-03-10", "2026-03-17", "2026-03-24", "2026-03-31", "2026-04-07", "2026-04-14", "2026-04-28", "2026-05-05", "2026-05-12", "2026-05-19", "2026-05-26", "2026-06-02", "2026-06-09", "2026-06-16", "2026-06-23", "2026-030-30", "2026-07-07", "2026-07-14", "2026-07-21", "2026-07-28"],
-        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30"]
-    },
-    "4GMAR": {
-        diaSemana: 5, // Sexta
-        datas: ["2026-04-10", "2026-04-17", "2026-05-08", "2026-05-15", "2026-05-22", "2026-05-29", "2026-06-05", "2026-06-12", "2026-06-19", "2026-06-26", "2026-07-03", "2026-07-10", "2026-07-17", "2026-07-24", "2026-07-31"],
-        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00"]
-    }
-};
-
-function configurarAgenda() {
-    const local = document.getElementById("unidade").value;
-    const campoData = document.getElementById("data");
-    const aviso = document.getElementById("avisoData");
-    
-    if (local) {
-        campoData.disabled = false;
-        campoData.value = "";
-        aviso.innerText = "Escolha uma data (Atenção aos dias da semana)";
-        document.getElementById("horario").disabled = true;
-    } else {
-        campoData.disabled = true;
-        aviso.innerText = "Selecione o local primeiro.";
-    }
-}
-
-function validarData() {
-    const local = document.getElementById("unidade").value;
-    const dataSelecionada = document.getElementById("data").value;
-    const campoHorario = document.getElementById("horario");
-    
-    if (!agendaConfig[local].datas.includes(dataSelecionada)) {
-        alert("Esta data não possui atendimento para este quartel. Verifique o cronograma.");
-        document.getElementById("data").value = "";
-        campoHorario.disabled = true;
-        return;
-    }
-
-    // Se a data for válida, carrega os horários do quartel
-    campoHorario.disabled = false;
-    campoHorario.innerHTML = '<option value="">Selecione o horário...</option>';
-    
-    agendaConfig[local].horarios.forEach(hora => {
-        campoHorario.innerHTML += `<option value="${hora}">${hora}</option>`;
-    });
-}
-</script>
+    <label>Horário</label>
+    <select id="horario" disabled>
+        <option value="">Selecione a data primeiro...</option>
+    </select>
 
     <button onclick="enviarDados()">Confirmar Agendamento Premium</button>
     <div class="footer">CBA X - Comando de Bombeiros de Área</div>
@@ -259,15 +147,13 @@ function validarData() {
 <div class="container success-area" id="success-area">
     <div class="success-icon">✅</div>
     <h2>Agendamento Realizado!</h2>
-    <p>Seus dados foram sincronizados com o Painel Administrativo do CBA X.</p>
-    
+    <p>Seus dados foram sincronizados com o Painel Administrativo.</p>
     <div class="info-box" id="resumo"></div>
-    
-    <button onclick="location.reload()" style="background: #666; margin-top: 25px; box-shadow: none;">Realizar novo agendamento</button>
+    <button onclick="location.reload()" style="background: #666; margin-top: 25px;">Realizar novo agendamento</button>
 </div>
 
 <script>
-    // CONFIGURAÇÃO IDENTICA AO SEU ADM
+    // 1. CONFIGURAÇÃO FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyD3Z8mJPvGrRzwpYLymAXYcRQat2ccUqVM",
         authDomain: "agendamento-odonto-cbax.firebaseapp.com",
@@ -276,57 +162,94 @@ function validarData() {
         messagingSenderId: "545212689993",
         appId: "1:545212689993:web:b4b85a03bb2dcac9739998"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // 2. CONFIGURAÇÃO DA AGENDA (Datas e Horários)
+    const agendaConfig = {
+        "1GMAR": {
+            datas: ["2026-03-11", "2026-03-18", "2026-03-25", "2026-04-01", "2026-04-08", "2026-05-06", "2026-05-13", "2026-05-20", "2026-05-27", "2026-06-03", "2026-06-10", "2026-06-17", "2026-06-24", "2026-07-01", "2026-07-08", "2026-07-15", "2026-07-22", "2026-07-29"],
+            horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00", "11:15"]
+        },
+        "2GMAR": {
+            datas: ["2026-03-10", "2026-03-17", "2026-03-24", "2026-03-31", "2026-04-28", "2026-05-05", "2026-05-12", "2026-05-19", "2026-05-26", "2026-06-02", "2026-06-09", "2026-06-16", "2026-06-23", "2026-06-30", "2026-07-07", "2026-07-14", "2026-07-21", "2026-07-28"],
+            horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00", "11:15", "13:00", "13:15", "13:30", "13:45", "14:00", "14:15", "14:30"]
+        },
+        "3GMAR": {
+            datas: ["2026-03-10", "2026-03-17", "2026-03-24", "2026-03-31", "2026-04-07", "2026-04-14", "2026-04-28", "2026-05-05", "2026-05-12", "2026-05-19", "2026-05-26", "2026-06-02", "2026-06-09", "2026-06-16", "2026-06-23", "2026-06-30", "2026-07-07", "2026-07-14", "2026-07-21", "2026-07-28"],
+            horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30"]
+        },
+        "4GMAR": {
+            datas: ["2026-04-10", "2026-04-17", "2026-05-08", "2026-05-15", "2026-05-22", "2026-05-29", "2026-06-05", "2026-06-12", "2026-06-19", "2026-06-26", "2026-07-03", "2026-07-10", "2026-07-17", "2026-07-24", "2026-07-31"],
+            horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00"]
+        }
+    };
+
+    // 3. FUNÇÕES DE TELA
+    function configurarAgenda() {
+        const local = document.getElementById("unidade").value;
+        const campoData = document.getElementById("data");
+        const aviso = document.getElementById("avisoData");
+        campoData.value = "";
+        document.getElementById("horario").disabled = true;
+        
+        if (local) {
+            campoData.disabled = false;
+            aviso.innerText = "Escolha uma data permitida.";
+        } else {
+            campoData.disabled = true;
+            aviso.innerText = "Selecione o local primeiro.";
+        }
+    }
+
+    function validarData() {
+        const local = document.getElementById("unidade").value;
+        const dataSelecionada = document.getElementById("data").value;
+        const campoHorario = document.getElementById("horario");
+        
+        if (!agendaConfig[local].datas.includes(dataSelecionada)) {
+            alert("Atenção: Não há inspeção neste dia para o quartel selecionado.");
+            document.getElementById("data").value = "";
+            campoHorario.disabled = true;
+            return;
+        }
+
+        campoHorario.disabled = false;
+        campoHorario.innerHTML = '<option value="">Selecione o horário...</option>';
+        agendaConfig[local].horarios.forEach(hora => {
+            campoHorario.innerHTML += `<option value="${hora}">${hora}</option>`;
+        });
+    }
+
+    // 4. ENVIO DE DADOS
     async function enviarDados() {
         const rg = document.getElementById('rg').value;
         const nome = document.getElementById('nome').value.toUpperCase();
         const local = document.getElementById('unidade').value;
         const dataVal = document.getElementById('data').value;
         const horaVal = document.getElementById('horario').value;
+        const posto = document.getElementById('posto').value;
+        const unidadeServe = document.getElementById('unidadeServe').value;
 
-        // Validação simples
-        if(!rg || !nome || !local || !dataVal || !horaVal) {
-            alert("Por favor, preencha todos os campos obrigatórios (Nome, RG, Local, Data e Hora).");
-            return;
+        if(!rg || !nome || !local || !dataVal || !horaVal || !posto) {
+            alert("Preencha todos os campos!"); return;
         }
 
         const dados = {
-            nome: nome,
-            rg: rg,
-            posto: document.getElementById('posto').value,
-            unidadeServe: document.getElementById('unidadeServe').value, // Origem
-            unidade: local,                                            // Local (o que o ADM filtra)
-            data: dataVal.split('-').reverse().join('/'),               // Converte para DD/MM/AAAA para o ADM
-            horario: horaVal,
-            timestamp: new Date()
+            nome, rg, posto, unidadeServe, unidade: local,
+            data: dataVal.split('-').reverse().join('/'),
+            horario: horaVal, timestamp: new Date()
         };
 
         try {
-            // Verifica se o RG já existe para evitar duplicados
             const busca = await db.collection("agendamentos").where("rg", "==", rg).get();
-            if(!busca.empty) {
-                alert("ERRO: Este RG já possui um agendamento cadastrado!");
-                return;
-            }
+            if(!busca.empty) { alert("Este RG já possui agendamento!"); return; }
 
-            // Salva na coleção "agendamentos" (mesma do ADM)
             await db.collection("agendamentos").add(dados);
-            
-            // Exibe Sucesso
             document.getElementById('form-container').style.display = 'none';
             document.getElementById('success-area').style.display = 'block';
-            document.getElementById('resumo').innerHTML = `
-                <strong>Militar:</strong> ${dados.posto} ${dados.nome}<br>
-                <strong>Local:</strong> ${dados.unidade}<br>
-                <strong>Data/Hora:</strong> ${dados.data} às ${dados.horario}
-            `;
-
-        } catch (error) {
-            alert("Erro ao salvar: " + error.message);
-        }
+            document.getElementById('resumo').innerHTML = `<strong>Militar:</strong> ${dados.posto} ${dados.nome}<br><strong>Local:</strong> ${dados.unidade}<br><strong>Data:</strong> ${dados.data} às ${dados.horario}`;
+        } catch (error) { alert("Erro: " + error.message); }
     }
 </script>
 </body>
