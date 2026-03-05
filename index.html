@@ -83,19 +83,7 @@
         <option value="4GMAR">4º GMAR - ITAIPU (CEPO)</option>
     </select>
 
-    <label>Data Escolhida:</label>
-    <input type="date" id="data" onchange="validarDataESlots()" disabled>
-
-    <label>Horários Disponíveis (1 vaga por horário):</label>
-    <select id="horario" disabled>
-        <option value="">Selecione o local e data...</option>
-    </select>
-    <div id="statusVagas" class="loading-spinner"></div>
-
-    <button id="btnSalvar" onclick="salvar()">Confirmar Agendamento</button>
-    <div class="footer-logo">SISTEMA DE GESTÃO CBA X</div>
-</div>
-
+   
 <div class="container success-box" id="success-area">
     <h2 style="color: var(--success-green);">✅ Agendamento Confirmado!</h2>
     <div id="resumo" style="text-align: left; background: #f9fbfd; padding: 15px; border-radius: 10px; margin: 15px 0; font-size: 14px; border-left: 5px solid var(--success-green);"></div>
