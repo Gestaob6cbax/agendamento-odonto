@@ -12,52 +12,36 @@
     <style>
         :root { --cba-blue: #0a2c6d; --cba-gold: #b8860b; --success: #28a745; --danger: #dc3545; }
         body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f4f7f9; margin: 0; color: #333; }
-        
         header { background: var(--cba-blue); color: white; padding: 20px; text-align: center; border-bottom: 4px solid var(--cba-gold); }
         header h1 { margin: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 1.5px; }
         header p { margin: 5px 0 0; opacity: 0.8; font-size: 14px; }
-
         .container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
-        
-        /* Cards de Estatísticas */
         .stats-row { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
         .stat-card { background: white; padding: 15px 25px; border-radius: 10px; flex: 1; min-width: 250px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 5px solid var(--cba-blue); display: flex; justify-content: space-between; align-items: center; }
         .stat-info span { display: block; font-size: 12px; color: #777; font-weight: bold; text-transform: uppercase; }
         .stat-info strong { font-size: 24px; color: var(--cba-blue); }
-
-        /* Controles de Filtro */
         .controls { background: white; padding: 20px; border-radius: 10px; display: flex; gap: 15px; align-items: center; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); flex-wrap: wrap; }
         .controls select, .controls input { padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-size: 14px; outline: none; }
         .search-input { flex-grow: 2; min-width: 200px; }
-        
         button { padding: 10px 18px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 13px; display: flex; align-items: center; gap: 8px; }
         .btn-refresh { background: #eee; color: #333; }
-        .btn-refresh:hover { background: #ddd; }
         .btn-danger { background: var(--danger); color: white; display: none; }
         .btn-export { background: var(--success); color: white; margin-left: auto; }
-        button:active { transform: scale(0.98); }
-
-        /* Tabela */
         .table-container { background: white; border-radius: 10px; overflow-x: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; min-width: 900px; }
         th { background: #f8f9fa; padding: 12px 15px; text-align: left; font-size: 11px; color: #888; border-bottom: 2px solid #eee; text-transform: uppercase; }
         td { padding: 12px 15px; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
         tr:hover { background: #f9fbff; }
-
         .badge-local { background: #e7f0ff; color: #0a2c6d; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
         .btn-delete-row { color: #ccc; background: none; border: none; cursor: pointer; font-size: 16px; transition: 0.2s; }
         .btn-delete-row:hover { color: var(--danger); }
-
-        /* Checkbox customizado */
-        input[type="checkbox"] { cursor: pointer; transform: scale(1.1); }
-
         @media print { .controls, .col-check, .col-del, .btn-refresh { display: none !important; } }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Painel Administrativo - Inspeção 2026</h1>
+    <h1>Painel Administrativo - Odontologia 2026</h1>
     <p>Comando de Bombeiros de Área - CBA X</p>
 </header>
 
@@ -73,14 +57,14 @@
         <div class="stat-card">
             <div class="stat-info">
                 <span>Conexão Database</span>
-                <strong id="status-db" style="color: var(--success); font-size: 16px;">Verificando...</strong>
+                <strong id="status-db" style="color: var(--success); font-size: 16px;">Conectado</strong>
             </div>
             <div id="db-icon" style="font-size: 30px;">📡</div>
         </div>
     </div>
 
     <div class="controls">
-        <select id="filtroUnidadeAgendada" onchange="carregarDados()">
+        <select id="filtroUnidadeAgendada" onchange="renderizarTabela(this.value)">
             <option value="">Todos os Locais de Inspeção</option>
             <option value="1GMAR">1º GMAR - BOTAFOGO</option>
             <option value="2GMAR">2º GMAR - BARRA</option>
@@ -115,14 +99,13 @@
                 </tr>
             </thead>
             <tbody id="tabela">
-                <tr><td colspan="9" style="padding: 50px; text-align: center; color: #999;">Aguardando comando...</td></tr>
+                <tr><td colspan="9" style="padding: 50px; text-align: center; color: #999;">Carregando dados...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // CONFIGURAÇÃO FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyD3Z8mJPvGrRzwpYLymAXYcRQat2ccUqVM",
         authDomain: "agendamento-odonto-cbax.firebaseapp.com",
@@ -134,36 +117,21 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
-    // Variável global para busca rápida sem sobrecarregar o banco
     let dadosLocais = [];
 
     async function carregarDados() {
         const tabela = document.getElementById("tabela");
-        const filtroLocal = document.getElementById("filtroUnidadeAgendada").value;
-        const statusDb = document.getElementById("status-db");
-        
-        tabela.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:30px;'>🔄 Sincronizando com Firebase...</td></tr>";
-
         try {
-            // Buscamos ordenado por data para facilitar a gestão
             const snapshot = await db.collection("agendamentos").orderBy("timestamp", "desc").get();
-            statusDb.innerText = "Online";
-            statusDb.style.color = "var(--success)";
-            
-            dadosLocais = []; // Limpa cache local
+            dadosLocais = [];
             snapshot.forEach(doc => {
                 const item = doc.data();
                 item.id = doc.id;
                 dadosLocais.push(item);
             });
-
-            renderizarTabela(filtroLocal);
+            renderizarTabela();
         } catch (e) {
-            console.error(e);
-            statusDb.innerText = "Erro de Conexão";
-            statusDb.style.color = "var(--danger)";
-            tabela.innerHTML = `<tr><td colspan='9' style='color:red; text-align:center; padding:30px;'>Falha ao carregar: ${e.message}</td></tr>`;
+            tabela.innerHTML = `<tr><td colspan='9' style='color:red;'>Erro: ${e.message}</td></tr>`;
         }
     }
 
@@ -174,114 +142,69 @@
         let total = 0;
 
         dadosLocais.forEach(d => {
-            const local = d.unidade || "N/I";
-            if (filtro && local !== filtro) return;
+            if (filtro && d.unidadeDestino !== filtro) return;
 
             total++;
             tabela.innerHTML += `
                 <tr data-nome="${d.nome}" data-rg="${d.rg}">
                     <td class="col-check"><input type="checkbox" class="checkItem" value="${d.id}" onchange="atualizarBotaoMassa()"></td>
-                    <td><span class="badge-local">${local}</span></td>
-                    <td>${d.unidadeServe || "CBA X"}</td>
+                    <td><span class="badge-local">${d.unidadeDestino || "---"}</span></td>
+                    <td>${d.unidadeOrigem || "---"}</td>
                     <td>${d.data || "---"}</td>
                     <td><strong>${d.horario || "---"}</strong></td>
                     <td>${d.posto || "---"}</td>
                     <td>${d.nome || "---"}</td>
                     <td>${d.rg || "---"}</td>
                     <td class="col-del">
-                        <button class="btn-delete-row" title="Excluir" onclick="excluirIndividual('${d.id}', '${d.nome}')">🗑️</button>
+                        <button class="btn-delete-row" onclick="excluirIndividual('${d.id}', '${d.nome}')">🗑️</button>
                     </td>
                 </tr>`;
         });
-
         contador.innerText = total;
-        if (total === 0) tabela.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:30px; color:#999;'>Nenhum registro encontrado para este filtro.</td></tr>";
-        atualizarBotaoMassa();
     }
 
-    // Busca em tempo real sem ir ao banco toda hora (TI de alta performance)
     function filtrarTabelaLocal() {
         const termo = document.getElementById("buscaNome").value.toUpperCase();
-        const linhas = document.querySelectorAll("#tabela tr");
-
-        linhas.forEach(linha => {
-            const nome = linha.getAttribute("data-nome") || "";
-            const rg = linha.getAttribute("data-rg") || "";
-            if (nome.includes(termo) || rg.includes(termo)) {
-                linha.style.display = "";
-            } else {
-                linha.style.display = "none";
-            }
+        document.querySelectorAll("#tabela tr").forEach(linha => {
+            const texto = linha.innerText.toUpperCase();
+            linha.style.display = texto.includes(termo) ? "" : "none";
         });
     }
 
     function toggleTodos() {
-        const master = document.getElementById("selecionarTodos");
-        document.querySelectorAll(".checkItem").forEach(cb => {
-            if(cb.closest('tr').style.display !== 'none') {
-                cb.checked = master.checked;
-            }
-        });
+        const m = document.getElementById("selecionarTodos");
+        document.querySelectorAll(".checkItem").forEach(cb => cb.checked = m.checked);
         atualizarBotaoMassa();
     }
 
     function atualizarBotaoMassa() {
-        const selecionados = document.querySelectorAll(".checkItem:checked").length;
-        const btn = document.getElementById("btnExcluirMassa");
-        document.getElementById("numSel").innerText = selecionados;
-        btn.style.display = selecionados > 0 ? "flex" : "none";
+        const sel = document.querySelectorAll(".checkItem:checked").length;
+        document.getElementById("numSel").innerText = sel;
+        document.getElementById("btnExcluirMassa").style.display = sel > 0 ? "flex" : "none";
     }
 
     async function excluirIndividual(id, nome) {
-        if (confirm(`MILITAR: ${nome}\nConfirma a exclusão permanente deste agendamento?`)) {
-            try {
-                await db.collection("agendamentos").doc(id).delete();
-                carregarDados();
-            } catch (e) { alert("Erro ao excluir."); }
+        if (confirm(`Excluir agendamento de ${nome}?`)) {
+            await db.collection("agendamentos").doc(id).delete();
+            carregarDados();
         }
     }
 
     async function cancelarSelecionados() {
         const checks = document.querySelectorAll(".checkItem:checked");
-        if (confirm(`ATENÇÃO: Deseja excluir em massa ${checks.length} agendamento(s)?`)) {
-            const promises = Array.from(checks).map(cb => db.collection("agendamentos").doc(cb.value).delete());
-            await Promise.all(promises);
+        if (confirm(`Excluir ${checks.length} registros?`)) {
+            for (let cb of checks) { await db.collection("agendamentos").doc(cb.value).delete(); }
             carregarDados();
         }
     }
 
     function exportarExcel() {
-        const tabela = document.getElementById("tabela");
-        if(tabela.rows.length < 1 || tabela.innerText.includes("Nenhum registro")) {
-            return alert("Não há dados para exportar.");
-        }
-
-        const dadosParaExportar = [];
-        const linhas = document.querySelectorAll("#tabela tr");
-
-        linhas.forEach(linha => {
-            if(linha.style.display !== 'none') {
-                const celulas = linha.cells;
-                dadosParaExportar.push({
-                    "LOCAL DESTINO": celulas[1].innerText,
-                    "ORIGEM": celulas[2].innerText,
-                    "DATA": celulas[3].innerText,
-                    "HORÁRIO": celulas[4].innerText,
-                    "POSTO/GRAD": celulas[5].innerText,
-                    "NOME COMPLETO": celulas[6].innerText,
-                    "RG": celulas[7].innerText
-                });
-            }
-        });
-
-        const dataHora = new Date().toLocaleDateString().replace(/\//g, '-');
-        const ws = XLSX.utils.json_to_sheet(dadosParaExportar);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Relatório CBA X");
-        XLSX.writeFile(wb, `Agendamento_Odonto_CBAX_${dataHora}.xlsx`);
+        const ws = XLSX.utils.json_to_sheet(dadosLocais);
+        XLSX.utils.book_append_sheet(wb, ws, "Agendamentos");
+        XLSX.writeFile(wb, "Relatorio_Odonto_CBAX.xlsx");
     }
 
-    // Inicialização
     window.onload = carregarDados;
 </script>
 </body>
