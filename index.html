@@ -82,5 +82,126 @@
         <option value="3GMAR">3º GMAR - COPACABANA</option>
         <option value="4GMAR">4º GMAR - ITAIPU (CEPO)</option>
     </select>
+<label>2. ESCOLHA A DATA DISPONÍVEL:</label>
+    <select id="data" onchange="carregarHorarios()" disabled>
+        <option value="">Escolha o local primeiro...</option>
+    </select>
+    <div id="statusVagas" class="loading-spinner"></div>
 
+    <label>3. HORÁRIO DISPONÍVEL:</label>
+    <select id="horario" disabled>
+        <option value="">Escolha a data primeiro...</option>
+    </select>
+
+    <button id="btnSalvar" onclick="salvar()">CONFIRMAR AGENDAMENTO</button>
+    <div class="footer-logo">SISTEMA DE GESTÃO CBA X</div>
+</div>
+
+<script>
+// CONFIGURAÇÃO OFICIAL - DATAS COMO LISTA FECHADA
+const agendaConfig = {
+    "1GMAR": { 
+        datas: ["11/03/2026", "18/03/2026", "25/03/2026", "01/04/2026", "08/04/2026", "06/05/2026", "13/05/2026", "20/05/2026", "27/05/2026", "03/06/2026", "10/06/2026", "17/06/2026", "24/06/2026", "01/07/2026", "08/07/2026", "15/07/2026", "22/07/2026", "29/07/2026"],
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00", "11:15"]
+    },
+    "2GMAR": { 
+        datas: ["10/03/2026", "17/03/2026", "24/03/2026", "31/03/2026", "28/04/2026", "05/05/2026", "12/05/2026", "19/05/2026", "26/05/2026", "02/06/2026", "09/06/2026", "16/06/2026", "23/06/2026", "30/06/2026", "07/07/2026", "14/07/2026", "21/07/2026", "28/07/2026"],
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00", "11:15", "13:00", "13:15", "13:30", "13:45", "14:00", "14:15", "14:30"]
+    },
+    "3GMAR": { 
+        datas: ["10/03/2026", "17/03/2026", "24/03/2026", "31/03/2026", "07/04/2026", "14/04/2026", "28/04/2026", "05/05/2026", "12/05/2026", "19/05/2026", "26/05/2026", "02/06/2026", "09/06/2026", "16/06/2026", "23/06/2026", "30/06/2026", "07/07/2026", "14/07/2026", "21/07/2026", "28/07/2026"],
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30"]
+    },
+    "4GMAR": { 
+        datas: ["10/04/2026", "17/04/2026", "08/05/2026", "15/05/2026", "22/05/2026", "29/05/2026", "05/06/2026", "12/06/2026", "19/06/2026", "26/06/2026", "03/07/2026", "10/07/2026", "17/07/2026", "24/07/2026", "31/07/2026"],
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00"]
+    }
+};
+
+const firebaseConfig = { apiKey: "AIzaSyD3Z8mJPvGrRzwpYLymAXYcRQat2ccUqVM", authDomain: "agendamento-odonto-cbax.firebaseapp.com", projectId: "agendamento-odonto-cbax", storageBucket: "agendamento-odonto-cbax.firebasestorage.app", messagingSenderId: "545212689993", appId: "1:545212689993:web:b4b85a03bb2dcac9739998" };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// FUNÇÃO: CARREGA AS DATAS NO SELECT ASSIM QUE ESCOLHE A UNIDADE
+function configurarAgenda() {
+    const local = document.getElementById("unidade").value;
+    const campoData = document.getElementById("data");
+    const campoHora = document.getElementById("horario");
+    
+    campoData.innerHTML = '<option value="">Selecione a data...</option>';
+    campoHora.innerHTML = '<option value="">Escolha a data primeiro...</option>';
+    campoHora.disabled = true;
+
+    if (local) {
+        campoData.disabled = false;
+        agendaConfig[local].datas.forEach(d => {
+            campoData.innerHTML += `<option value="${d}">${d}</option>`;
+        });
+    } else {
+        campoData.disabled = true;
+    }
+}
+
+// FUNÇÃO: BUSCA HORÁRIOS LIVRES NO FIREBASE
+async function carregarHorarios() {
+    const local = document.getElementById("unidade").value;
+    const dataSel = document.getElementById("data").value;
+    const campoHora = document.getElementById("horario");
+    const status = document.getElementById("statusVagas");
+
+    if (!dataSel) return;
+
+    status.innerText = "🔍 Verificando vagas...";
+    campoHora.disabled = true;
+
+    try {
+        const snapshot = await db.collection("agendamentos")
+                                 .where("unidade", "==", local)
+                                 .where("data", "==", dataSel).get();
+        
+        const ocupados = snapshot.docs.map(doc => doc.data().horario);
+        const disponiveis = agendaConfig[local].horarios.filter(h => !ocupados.includes(h));
+
+        campoHora.innerHTML = '<option value="">Escolha o horário...</option>';
+        if (disponiveis.length === 0) {
+            status.innerText = "❌ Vagas esgotadas!";
+        } else {
+            status.innerText = `✅ ${disponiveis.length} vagas livres.`;
+            campoHora.disabled = false;
+            disponiveis.forEach(h => campoHora.innerHTML += `<option value="${h}">${h}</option>`);
+        }
+    } catch (e) { status.innerText = "Erro ao carregar."; }
+}
+
+async function salvar() {
+    const btn = document.getElementById('btnSalvar');
+    const d = {
+        posto: document.getElementById('posto').value,
+        nome: document.getElementById('nome').value.trim(),
+        rg: document.getElementById('rg').value.trim(),
+        unidadeServe: document.getElementById('unidadeServe').value,
+        unidade: document.getElementById('unidade').value,
+        data: document.getElementById('data').value,
+        horario: document.getElementById('horario').value
+    };
+
+    if (Object.values(d).some(v => !v)) return alert("Preencha todos os campos!");
+
+    btn.disabled = true; btn.innerText = "Salvando...";
+
+    try {
+        const rgExiste = await db.collection("agendamentos").where("rg", "==", d.rg).get();
+        if (!rgExiste.empty) {
+            btn.disabled = false; btn.innerText = "Confirmar Agendamento";
+            return alert("🚨 Este RG já possui agendamento!");
+        }
+
+        await db.collection("agendamentos").add({ ...d, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+        alert("SUCESSO! Agendamento realizado.");
+        location.reload();
+    } catch (e) { alert("Erro: " + e.message); btn.disabled = false; }
+}
+</script>
+</body>
+</html>
    
