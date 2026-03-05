@@ -24,20 +24,21 @@
 <body>
 
 <div class="container" id="form-area">
-   <header>
-    <img src="https://raw.githubusercontent.com/Gestaob6cbax/INSPECAO-ODONTOLOGICA-CBA-X-2026/main/logo.png" 
-         style="width: 100px; height: auto; margin-bottom: 10px;" 
-         alt="Logo CBA X">
-    <h2>Agendamento Odontológico</h2>
-    <p style="color: #666; font-size: 0.85rem; margin: 0;">Inspeção de Saúde - CBA X</p>
-</header>
-    <label>Posto / Graduação:</label>
-    <select id="posto">
-        <option value="">Selecione...</option>
-        <option>CORONEL</option><option>TENENTE CORONEL</option><option>MAJOR</option><option>CAPITÃO</option>
-        <option>1º TENENTE</option><option>2º TENENTE</option><option>SUBTENENTE</option>
-        <option>1º SARGENTO</option><option>2º SARGENTO</option><option>3º SARGENTO</option>
-        <option>CABO</option><option>SOLDADO</option>
+    <header>
+        <img src="https://raw.githubusercontent.com/Gestaob6cbax/INSPECAO-ODONTOLOGICA-CBA-X-2026/main/logo.png" 
+             style="width: 100px; height: auto; margin-bottom: 10px;" 
+             alt="Logo CBA X">
+        <h2>Agendamento Odontológico</h2>
+        <p style="color: #666; font-size: 0.85rem; margin: 0;">Inspeção de Saúde - CBA X</p>
+    </header>
+
+    <label>Posto/Graduação:</label>
+    <select id="posto" required>
+        <option value="">Selecione seu Posto / Graduação</option>
+        <option>SD BM</option><option>CB BM</option><option>3º SGT BM</option>
+        <option>2º SGT BM</option><option>1º SGT BM</option><option>SUBTEN BM</option>
+        <option>2º TEN BM</option><option>1º TEN BM</option><option>CAP BM</option>
+        <option>MAJ BM</option><option>TEN CEL BM</option><option>CEL BM</option>
     </select>
 
     <label>Nome Completo:</label>
@@ -55,8 +56,16 @@
         <option>DBM 5/M</option><option>DBM 6/M</option>
     </select>
 
+    <label>WhatsApp (Telefone):</label>
+    <input type="text" id="telefone" placeholder="(XX) XXXXX-XXXX">
+
+    <label>E-mail:</label>
+    <input type="email" id="email" placeholder="militar@exemplo.com">
+
+    <hr style="margin-top: 20px; border: 0; border-top: 1px solid #eee;">
+
     <label>Local do Atendimento (Destino):</label>
-    <select id="unidade">
+    <select id="unidade" onchange="configurarAgenda()">
         <option value="">Selecione o local...</option>
         <option value="1GMAR">1º GMAR - BOTAFOGO</option>
         <option value="2GMAR">2º GMAR - BARRA (GBS)</option>
@@ -64,22 +73,14 @@
         <option value="4GMAR">4º GMAR - ITAIPU (CEPO)</option>
     </select>
 
-    <label>Data:</label>
-    <input type="date" id="data">
+    <label>Data Escolhida:</label>
+    <input type="date" id="data" onchange="validarData()" disabled>
+    <small id="avisoData" style="color: #666; font-size: 11px; display: block; margin-top: 5px;">Selecione o local primeiro.</small>
 
     <label>Horário:</label>
-    <select id="horario">
-        <option value="">Selecione...</option>
-        <option>08:00</option><option>09:00</option><option>10:00</option>
-        <option>11:00</option><option>13:00</option><option>14:00</option>
-        <option>15:00</option>
+    <select id="horario" disabled>
+        <option value="">Selecione a data primeiro...</option>
     </select>
-
-    <label>WhatsApp (Telefone):</label>
-    <input type="text" id="telefone" placeholder="(XX) XXXXX-XXXX">
-
-    <label>E-mail:</label>
-    <input type="email" id="email" placeholder="militar@exemplo.com">
 
     <button onclick="salvar()">Confirmar Agendamento</button>
     <div class="footer-logo">CBA X - Comando de Bombeiros de Área</div>
@@ -93,68 +94,122 @@
 </div>
 
 <script>
-    // CREDENCIAIS EXATAS DO SEU PROJETO ODONTO
-    const firebaseConfig = {
-        apiKey: "AIzaSyD3Z8mJPvGrRzwpYLymAXYcRQat2ccUqVM",
-        authDomain: "agendamento-odonto-cbax.firebaseapp.com",
-        projectId: "agendamento-odonto-cbax",
-        storageBucket: "agendamento-odonto-cbax.firebasestorage.app",
-        messagingSenderId: "545212689993",
-        appId: "1:545212689993:web:b4b85a03bb2dcac9739998"
+// CONFIGURAÇÃO DA AGENDA (CRONOGRAMA OFICIAL)
+const agendaConfig = {
+    "1GMAR": {
+        datas: ["2026-03-11", "2026-03-18", "2026-03-25", "2026-04-01", "2026-04-08", "2026-05-06", "2026-05-13", "2026-05-20", "2026-05-27", "2026-06-03", "2026-06-10", "2026-06-17", "2026-06-24", "2026-07-01", "2026-07-08", "2026-07-15", "2026-07-22", "2026-07-29"],
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00", "11:15"]
+    },
+    "2GMAR": {
+        datas: ["2026-03-10", "2026-03-17", "2026-03-24", "2026-03-31", "2026-04-28", "2026-05-05", "2026-05-12", "2026-05-19", "2026-05-26", "2026-06-02", "2026-06-09", "2026-06-16", "2026-06-23", "2026-06-30", "2026-07-07", "2026-07-14", "2026-07-21", "2026-07-28"],
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00", "11:15", "13:00", "13:15", "13:30", "13:45", "14:00", "14:15", "14:30"]
+    },
+    "3GMAR": {
+        datas: ["2026-03-10", "2026-03-17", "2026-03-24", "2026-03-31", "2026-04-07", "2026-04-14", "2026-04-28", "2026-05-05", "2026-05-12", "2026-05-19", "2026-05-26", "2026-06-02", "2026-06-09", "2026-06-16", "2026-06-23", "2026-06-30", "2026-07-07", "2026-07-14", "2026-07-21", "2026-07-28"],
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30"]
+    },
+    "4GMAR": {
+        datas: ["2026-04-10", "2026-04-17", "2026-05-08", "2026-05-15", "2026-05-22", "2026-05-29", "2026-06-05", "2026-06-12", "2026-06-19", "2026-06-26", "2026-07-03", "2026-07-10", "2026-07-17", "2026-07-24", "2026-07-31"],
+        horarios: ["08:00", "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00", "10:15", "10:30", "10:45", "11:00"]
+    }
+};
+
+function configurarAgenda() {
+    const local = document.getElementById("unidade").value;
+    const campoData = document.getElementById("data");
+    const aviso = document.getElementById("avisoData");
+    const campoHora = document.getElementById("horario");
+    
+    campoData.value = "";
+    campoHora.innerHTML = '<option value="">Selecione a data primeiro...</option>';
+    campoHora.disabled = true;
+
+    if (local) {
+        campoData.disabled = false;
+        aviso.innerText = "Escolha uma data de inspeção permitida.";
+    } else {
+        campoData.disabled = true;
+        aviso.innerText = "Selecione o local primeiro.";
+    }
+}
+
+function validarData() {
+    const local = document.getElementById("unidade").value;
+    const dataSelecionada = document.getElementById("data").value;
+    const campoHorario = document.getElementById("horario");
+    
+    if (!agendaConfig[local].datas.includes(dataSelecionada)) {
+        alert("Atenção: Não haverá inspeção nesta unidade no dia selecionado. Por favor, verifique o cronograma.");
+        document.getElementById("data").value = "";
+        campoHorario.disabled = true;
+        return;
+    }
+
+    campoHorario.disabled = false;
+    campoHorario.innerHTML = '<option value="">Selecione o horário...</option>';
+    
+    agendaConfig[local].horarios.forEach(hora => {
+        campoHorario.innerHTML += `<option value="${hora}">${hora}</option>`;
+    });
+}
+
+// CONFIGURAÇÃO FIREBASE
+const firebaseConfig = {
+    apiKey: "AIzaSyD3Z8mJPvGrRzwpYLymAXYcRQat2ccUqVM",
+    authDomain: "agendamento-odonto-cbax.firebaseapp.com",
+    projectId: "agendamento-odonto-cbax",
+    storageBucket: "agendamento-odonto-cbax.firebasestorage.app",
+    messagingSenderId: "545212689993",
+    appId: "1:545212689993:web:b4b85a03bb2dcac9739998"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+async function salvar() {
+    const rg = document.getElementById('rg').value;
+    const nome = document.getElementById('nome').value.toUpperCase();
+    const local = document.getElementById('unidade').value;
+    const dataVal = document.getElementById('data').value;
+    const horaVal = document.getElementById('horario').value;
+
+    if(!rg || !nome || !local || !dataVal || !horaVal) {
+        return alert("Atenção: Nome, RG, Local, Data e Horário são obrigatórios!");
+    }
+
+    const dados = {
+        nome: nome,
+        rg: rg,
+        posto: document.getElementById('posto').value,
+        unidadeServe: document.getElementById('unidadeServe').value,
+        unidade: local,
+        data: dataVal.split('-').reverse().join('/'),
+        horario: horaVal,
+        telefone: document.getElementById('telefone').value,
+        email: document.getElementById('email').value,
+        timestamp: new Date()
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    async function salvar() {
-        const rg = document.getElementById('rg').value;
-        const nome = document.getElementById('nome').value.toUpperCase();
-        const local = document.getElementById('unidade').value;
-        const dataVal = document.getElementById('data').value;
-        const horaVal = document.getElementById('horario').value;
-
-        if(!rg || !nome || !local || !dataVal || !horaVal) {
-            return alert("Atenção: Nome, RG, Local, Data e Horário são obrigatórios!");
+    try {
+        const query = await db.collection("agendamentos").where("rg", "==", rg).get();
+        if(!query.empty) {
+            return alert("ERRO: Este RG já possui um agendamento registrado!");
         }
 
-        const dados = {
-            nome: nome,
-            rg: rg,
-            posto: document.getElementById('posto').value,
-            unidadeServe: document.getElementById('unidadeServe').value, // Origem (badge-origem no ADM)
-            unidade: local,                                            // Local (badge-local no ADM)
-            data: dataVal.split('-').reverse().join('/'),               // Formata para DD/MM/AAAA
-            horario: horaVal,
-            telefone: document.getElementById('telefone').value,
-            email: document.getElementById('email').value,
-            timestamp: new Date()
-        };
-
-        try {
-            // Verifica se o militar já agendou (Evita duplicidade)
-            const query = await db.collection("agendamentos").where("rg", "==", rg).get();
-            if(!query.empty) {
-                return alert("ERRO: Este RG já possui um agendamento registrado!");
-            }
-
-            // Grava na coleção 'agendamentos' que o seu ADM lê
-            await db.collection("agendamentos").add(dados);
-            
-            document.getElementById('form-area').style.display = 'none';
-            document.getElementById('success-area').style.display = 'block';
-            document.getElementById('resumo').innerHTML = `
-                <b>Militar:</b> ${dados.posto} ${dados.nome}<br>
-                <b>Local:</b> ${dados.unidade}<br>
-                <b>Data/Hora:</b> ${dados.data} às ${dados.horario}
-            `;
-            
-        } catch (e) {
-            alert("Erro ao conectar com o servidor: " + e.message);
-        }
+        await db.collection("agendamentos").add(dados);
+        
+        document.getElementById('form-area').style.display = 'none';
+        document.getElementById('success-area').style.display = 'block';
+        document.getElementById('resumo').innerHTML = `
+            <b>Militar:</b> ${dados.posto} ${dados.nome}<br>
+            <b>Local:</b> ${dados.unidade}<br>
+            <b>Data/Hora:</b> ${dados.data} às ${dados.horario}
+        `;
+        
+    } catch (e) {
+        alert("Erro ao conectar com o servidor: " + e.message);
     }
+}
 </script>
 </body>
 </html>
-
-
-
