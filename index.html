@@ -140,22 +140,18 @@
         <p>Sistema de Saúde CBA X - Inspeção 2026</p>
     </header>
 
-    <label>Posto / Graduação</label>
-    <select id="posto">
-        <option value="">Selecione...</option>
-        <option>CORONEL</option><option>TENENTE CORONEL</option><option>MAJOR</option><option>CAPITÃO</option>
-        <option>1º TENENTE</option><option>2º TENENTE</option><option>SUBTENENTE</option>
-        <option>1º SARGENTO</option><option>2º SARGENTO</option><option>3º SARGENTO</option>
-        <option>CABO</option><option>SOLDADO</option>
-    </select>
-
-    <label>Nome Completo (Sem abreviações)</label>
-    <input type="text" id="nome" placeholder="Ex: JOÃO DA SILVA FERREIRA">
-
-    <label>RG Militar</label>
-    <input type="number" id="rg" placeholder="Digite apenas os números">
-
-    <label>Unidade de Origem (Onde você serve)</label>
+   <select id="posto" required>
+            <option value="">Selecione seu Posto / Graduação</option>
+            <option>SD BM</option><option>CB BM</option><option>3º SGT BM</option>
+            <option>2º SGT BM</option><option>1º SGT BM</option><option>SUBTEN BM</option>
+            <option>2º TEN BM</option><option>1º TEN BM</option><option>CAP BM</option>
+            <option>MAJ BM</option><option>TEN CEL BM</option><option>CEL BM</option>
+        </select>
+        <label>Nome Completo (Sem abreviações):</label>
+        <input type="text" id="nome" placeholder="NOME COMPLETO">
+        <label>RG Militar:</label>
+        <input type="number" id="rg" placeholder="Apenas números">
+        <label>Unidade de Origem:</label>
     <select id="unidadeServe">
         <option value="">Selecione sua unidade...</option>
         <option>CBA X sed</option><option>1º GMAR</option><option>2º GMAR</option><option>3º GMAR</option>
