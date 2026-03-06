@@ -75,13 +75,13 @@
 
         <div class="section-title">Local e Data</div>
         
-        <label>Unidade de Atendimento</label>
-        <select id="unidadeDestino" onchange="configurarDatas()">
-            <option value="">Selecione o GMAR...</option>
+        <label>Local de Destino (Onde fará a inspeção)</label>
+        <select id="unidadeDestino" onchange="atualizarDatas()">
+            <option value="">Escolha para onde deseja ir...</option>
             <option value="1GMAR">1º GMAR - BOTAFOGO</option>
-            <option value="2GMAR">2º GMAR - BARRA (Inspeções feitas na CER até inauguração da unidade BARRA)</option>
+            <option value="GBS">GBS-BARRA (AS INSPEÇOES SERÃO NO GBS ATÉ A INAUGURAÇÃO DA UNIDADE)</option>
             <option value="3GMAR">3º GMAR - COPACABANA</option>
-            <option value="4GMAR">4º GMAR - ITAIPU</option>
+            <option value="4GMAR">4º GMAR - ITAIPU (CEPO)</option>
         </select>
 
         <label>Data</label>
@@ -107,14 +107,14 @@
 </div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyBwN3KGBafTjdGt9sz1GpWQcFlg7K8ljWM",
-        authDomain: "inspecao-odontologica-cbax.firebaseapp.com",
-        projectId: "inspecao-odontologica-cbax",
-        storageBucket: "inspecao-odontologica-cbax.firebasestorage.app",
-        messagingSenderId: "16343103868",
-        appId: "1:16343103868:web:a386d9adcc48f818528cf9"
-    };
+   const firebaseConfig = {
+    apiKey: "AIzaSyAPUZftC2cq-khKiNq6dHBqkQeaoNWrjRc",
+    authDomain: "inspecao-medica-cbax.firebaseapp.com",
+    projectId: "inspecao-medica-cbax",
+    storageBucket: "inspecao-medica-cbax.firebasestorage.app",
+    messagingSenderId: "1171422846",
+    appId: "1:1171422846:web:39b7e005699370ac22e22f"
+};
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
