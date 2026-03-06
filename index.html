@@ -3,39 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendamento Odontológico 2026 - CBA X</title>
+    <title>Odontologia 2026 - CBA X</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     
     <style>
         :root { --cba-blue: #0a2c6d; --cba-gold: #c5a059; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; display: flex; justify-content: center; }
-        .premium-card { width: 100%; max-width: 480px; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); border-top: 8px solid var(--cba-blue); }
-        header { text-align: center; margin-bottom: 20px; }
-        header img { width: 80px; }
-        header h2 { color: var(--cba-blue); margin: 10px 0 5px; font-size: 1.2rem; text-transform: uppercase; }
-        .section-title { background: var(--cba-blue); color: white; padding: 8px; font-size: 0.7rem; font-weight: bold; border-radius: 5px; margin-top: 20px; text-transform: uppercase; text-align: center; }
-        label { display: block; margin-top: 15px; font-weight: bold; color: #333; font-size: 0.75rem; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 2px solid #dfe4ea; border-radius: 10px; font-size: 16px; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .premium-card { width: 100%; max-width: 500px; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 10px solid var(--cba-blue); box-sizing: border-box; }
+        header { text-align: center; margin-bottom: 15px; }
+        header img { width: 75px; }
+        .section-title { background: var(--cba-blue); color: white; padding: 8px; font-size: 0.75rem; font-weight: bold; border-radius: 5px; margin: 20px 0 10px; text-transform: uppercase; text-align: center; }
+        label { display: block; margin-top: 10px; font-weight: bold; color: #333; font-size: 0.8rem; }
+        input, select { width: 100%; padding: 12px; margin-top: 4px; border: 2px solid #dfe4ea; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
         
-        #comprovante { display: none; text-align: center; padding: 20px; border: 3px dashed var(--cba-blue); border-radius: 15px; background: #fff; }
-        .comp-header { color: #27ae60; font-weight: bold; margin-bottom: 20px; }
-        .comp-item { margin: 12px 0; border-bottom: 1px solid #eee; padding-bottom: 5px; text-align: left; }
+        #comprovante { display: none; text-align: center; padding: 20px; border: 3px dashed var(--cba-blue); border-radius: 15px; background: #fff; margin-top: 10px; }
+        .comp-item { margin: 10px 0; border-bottom: 1px solid #eee; padding-bottom: 5px; text-align: left; }
         .comp-label { font-size: 0.65rem; color: #666; font-weight: bold; text-transform: uppercase; }
-        .comp-value { font-size: 1.1rem; color: var(--cba-blue); font-weight: bold; }
+        .comp-value { font-size: 1.05rem; color: var(--cba-blue); font-weight: bold; }
         
-        .vagas-badge { margin-top: 10px; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold; display: none; font-size: 0.85rem; }
+        .vagas-badge { margin-top: 10px; padding: 10px; border-radius: 10px; text-align: center; font-weight: bold; display: none; font-size: 0.9rem; }
         .vagas-ok { background: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; }
         .vagas-esgotado { background: #ffebee; color: #b71c1c; border: 1px solid #ffcdd2; }
         
-        .btn-confirmar { background: linear-gradient(135deg, var(--cba-blue) 0%, #061a41 100%); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 25px; text-transform: uppercase; border-bottom: 3px solid var(--cba-gold); }
+        .btn-confirmar { background: linear-gradient(135deg, var(--cba-blue) 0%, #061a41 100%); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 25px; text-transform: uppercase; border-bottom: 4px solid var(--cba-gold); }
+        .btn-confirmar:disabled { background: #ccc; border-bottom: none; cursor: not-allowed; }
         .btn-print { background: #2ecc71; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; }
 
         @media print {
             body { background: white; padding: 0; }
-            .btn-print, .btn-confirmar, button, .section-title { display: none !important; }
-            #comprovante { border: 2px solid #000; display: block !important; }
+            .btn-print, .btn-confirmar, .section-title, header, button { display: none !important; }
+            #comprovante { border: 2px solid #000; display: block !important; margin: 0; }
         }
     </style>
 </head>
@@ -44,22 +43,38 @@
 <div class="premium-card">
     <header>
         <img src="https://raw.githubusercontent.com/gestaob6cbax/INSPECAO-MEDICA-CBA-X-2026/main/logo_cba_x.png" alt="CBA X">
-        <h2>Agendamento Odontológico</h2>
-        <p style="font-size: 0.8rem; color: #666; font-weight: bold;">CBA X - SAÚDE BUCAL 2026</p>
+        <h2 style="color: var(--cba-blue); margin: 10px 0; font-size: 1.3rem;">Odontologia 2026</h2>
+        <p style="font-size: 0.8rem; font-weight: bold; color: #666;">CBA X - SAÚDE BUCAL</p>
     </header>
 
     <div id="form-content">
-        <div class="section-title">Identificação do Militar</div>
+        <div class="section-title">Dados do Militar</div>
+        
+        <label>Posto/Graduação</label>
         <select id="posto">
-            <option value="">Posto/Graduação...</option>
+            <option value="">Selecione...</option>
             <option>SD BM</option><option>CB BM</option><option>3º SGT BM</option><option>2º SGT BM</option>
             <option>1º SGT BM</option><option>SUBTEN BM</option><option>2º TEN BM</option><option>1º TEN BM</option>
             <option>CAP BM</option><option>MAJ BM</option><option>TEN CEL BM</option><option>CEL BM</option>
         </select>
-        <input type="text" id="nome" placeholder="NOME COMPLETO" oninput="this.value = this.value.toUpperCase()">
-        <input type="number" id="rg" placeholder="RG MILITAR">
+
+        <label>Nome Completo</label>
+        <input type="text" id="nome" placeholder="NOME SEM ABREVIAÇÕES" oninput="this.value = this.value.toUpperCase()">
+
+        <label>RG Militar</label>
+        <input type="number" id="rg" placeholder="DIGITE SEU RG">
+
+        <label>Unidade em que serve (Lotação)</label>
+        <input type="text" id="unidadeOrigem" placeholder="EX: 1º GMAR, CBA X, DBM..." oninput="this.value = this.value.toUpperCase()">
+
+        <label>E-mail</label>
+        <input type="email" id="email" placeholder="exemplo@email.com">
+
+        <label>Telefone / WhatsApp</label>
+        <input type="tel" id="telefone" placeholder="(XX) 9XXXX-XXXX">
 
         <div class="section-title">Local e Data</div>
+        
         <label>Unidade de Atendimento</label>
         <select id="unidadeDestino" onchange="configurarDatas()">
             <option value="">Selecione o GMAR...</option>
@@ -69,7 +84,7 @@
             <option value="4GMAR">4º GMAR - ITAIPU</option>
         </select>
 
-        <label>Data Escolhida</label>
+        <label>Data</label>
         <select id="data" onchange="atualizarVagas()">
             <option value="">Selecione a unidade primeiro...</option>
         </select>
@@ -79,15 +94,15 @@
     </div>
 
     <div id="comprovante">
-        <div class="comp-header">✅ AGENDAMENTO REALIZADO</div>
+        <div style="color: #27ae60; font-weight: bold; font-size: 1.2rem; margin-bottom: 15px;">✅ AGENDAMENTO REALIZADO</div>
         <div class="comp-item"><div class="comp-label">Militar:</div><div id="res-nome" class="comp-value"></div></div>
         <div class="comp-item"><div class="comp-label">RG:</div><div id="res-rg" class="comp-value"></div></div>
-        <div class="comp-item"><div class="comp-label">Local de Atendimento:</div><div id="res-local" class="comp-value"></div></div>
+        <div class="comp-item"><div class="comp-label">Lotação:</div><div id="res-origem" class="comp-value"></div></div>
+        <div class="comp-item"><div class="comp-label">Local do Atendimento:</div><div id="res-local" class="comp-value"></div></div>
         <div class="comp-item"><div class="comp-label">Data:</div><div id="res-data" class="comp-value"></div></div>
         
         <button class="btn-print" onclick="window.print()">🖨️ IMPRIMIR / SALVAR PDF</button>
-        <p style="font-size: 0.7rem; color: #888; margin-top: 15px;">Guarde este comprovante para apresentação.</p>
-        <button onclick="location.reload()" style="background:none; border:none; color:blue; cursor:pointer; text-decoration:underline;">Fazer outro agendamento</button>
+        <button onclick="location.reload()" style="background:none; border:none; color:blue; cursor:pointer; text-decoration:underline; font-size: 0.8rem; margin-top: 15px;">Novo Agendamento</button>
     </div>
 </div>
 
@@ -104,70 +119,72 @@
     const db = firebase.firestore();
 
     const escalaOdonto = {
-        "1GMAR": { vagas: 14, datas: ["11/03/2026","18/03/2026","25/03/2026","01/04/2026","08/04/2026","06/05/2026","13/05/2026","20/05/2026","27/05/2026","03/06/2026","10/06/2026","17/06/2026","24/06/2026","01/07/2026","08/07/2026","15/07/2026","22/07/2026","29/07/2026"] },
-        "2GMAR": { vagas: 21, datas: ["10/03/2026","17/03/2026","24/03/2026","31/03/2026","28/04/2026","05/05/2026","12/05/2026","19/05/2026","26/05/2026","02/06/2026","09/06/2026","16/06/2026","23/06/2026","30/06/2026","07/07/2026","14/07/2026","21/07/2026","28/07/2026"] },
-        "3GMAR": { vagas: 11, datas: ["10/03/2026","17/03/2026","24/03/2026","31/03/2026","07/04/2026","14/04/2026","28/04/2026","05/05/2026","12/05/2026","19/05/2026","26/05/2026","02/06/2026","09/06/2026","16/06/2026","23/06/2026","30/06/2026","07/07/2026","14/07/2026","21/07/2026","28/07/2026"] },
-        "4GMAR": { vagas: 13, datas: ["10/04/2026","17/04/2026","08/05/2026","15/05/2026","22/05/2026","29/05/2026","05/06/2026","12/06/2026","19/06/2026","26/06/2026","03/07/2026","10/07/2026","17/07/2026","24/07/2026","31/07/2026"] }
+        "1GMAR": { vagas: 14, datas: ["11/03/2026","18/03/2026","25/03/2026","01/04/2026"] },
+        "2GMAR": { vagas: 21, datas: ["10/03/2026","17/03/2026","24/03/2026","31/03/2026"] },
+        "3GMAR": { vagas: 11, datas: ["10/03/2026","17/03/2026","24/03/2026","31/03/2026"] },
+        "4GMAR": { vagas: 13, datas: ["10/04/2026","17/04/2026","08/05/2026"] }
     };
 
     function configurarDatas() {
         const local = document.getElementById("unidadeDestino").value;
-        const dataSelect = document.getElementById("data");
-        dataSelect.innerHTML = '<option value="">Selecione a data...</option>';
+        const ds = document.getElementById("data");
+        ds.innerHTML = '<option value="">Selecione a data...</option>';
         if (local && escalaOdonto[local]) {
             escalaOdonto[local].datas.forEach(d => {
-                let opt = document.createElement("option");
-                opt.value = d; opt.innerText = d;
-                dataSelect.appendChild(opt);
+                let o = document.createElement("option"); o.value = d; o.innerText = d;
+                ds.appendChild(o);
             });
         }
     }
 
     async function atualizarVagas() {
         const local = document.getElementById("unidadeDestino").value;
-        const dataSel = document.getElementById("data").value;
-        const badge = document.getElementById("statusVagas");
-        if (!local || !dataSel) return;
+        const dt = document.getElementById("data").value;
+        const b = document.getElementById("statusVagas");
+        if (!local || !dt) return;
 
-        badge.style.display = "block"; badge.innerText = "🔍 Verificando vagas...";
-        
-        const snapshot = await db.collection("agendamentos").where("unidadeID", "==", local).where("data", "==", dataSel).get();
-        const limite = escalaOdonto[local].vagas;
-        const restam = limite - snapshot.size;
+        b.style.display = "block"; b.innerText = "🔍 Verificando...";
+        const snap = await db.collection("agendamentos").where("unidadeID", "==", local).where("data", "==", dt).get();
+        const restam = escalaOdonto[local].vagas - snap.size;
 
         if (restam <= 0) {
-            badge.innerText = "❌ ESGOTADO"; badge.className = "vagas-badge vagas-esgotado";
+            b.innerText = "❌ VAGAS ESGOTADAS"; b.className = "vagas-badge vagas-esgotado";
             document.getElementById("btnSalvar").disabled = true;
         } else {
-            badge.innerText = `✅ ${restam} VAGAS DISPONÍVEIS`; badge.className = "vagas-badge vagas-ok";
+            b.innerText = `✅ ${restam} VAGAS DISPONÍVEIS`; b.className = "vagas-badge vagas-ok";
             document.getElementById("btnSalvar").disabled = false;
         }
     }
 
     async function salvar() {
-        const localSel = document.getElementById("unidadeDestino");
+        const btn = document.getElementById("btnSalvar");
         const d = {
             posto: document.getElementById("posto").value,
             nome: document.getElementById("nome").value.trim(),
             rg: document.getElementById("rg").value.trim(),
-            unidadeID: localSel.value,
-            unidadeNome: localSel.options[localSel.selectedIndex].text,
+            unidadeOrigem: document.getElementById("unidadeOrigem").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            telefone: document.getElementById("telefone").value.trim(),
+            unidadeID: document.getElementById("unidadeDestino").value,
+            unidadeNome: document.getElementById("unidadeDestino").options[document.getElementById("unidadeDestino").selectedIndex].text,
             data: document.getElementById("data").value,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        if (!d.posto || !d.nome || !d.rg || !d.data) return alert("Preencha todos os campos!");
+        if (!d.posto || !d.nome || !d.rg || !d.unidadeOrigem || !d.data) return alert("Preencha todos os campos obrigatórios!");
+
+        btn.innerText = "SALVANDO..."; btn.disabled = true;
 
         try {
             await db.collection("agendamentos").add(d);
             document.getElementById("form-content").style.display = "none";
             document.getElementById("comprovante").style.display = "block";
-            
             document.getElementById("res-nome").innerText = d.posto + " " + d.nome;
             document.getElementById("res-rg").innerText = d.rg;
+            document.getElementById("res-origem").innerText = d.unidadeOrigem;
             document.getElementById("res-local").innerText = d.unidadeNome;
             document.getElementById("res-data").innerText = d.data;
-        } catch (e) { alert("Erro ao salvar."); }
+        } catch (e) { alert("Erro ao salvar."); btn.disabled = false; }
     }
 </script>
 </body>
