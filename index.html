@@ -2,104 +2,72 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendamento Odontológico 2026 - CBA X</title>
+    <title>ADM - Odontologia 2026 - CBA X</title>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
-        :root { --odonto-cyan: #00838f; --cba-blue: #0a2c6d; --cba-red: #b71c1c; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 15px; display: flex; justify-content: center; }
-        .card { width: 100%; max-width: 500px; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 12px solid var(--odonto-cyan); }
-        header { text-align: center; margin-bottom: 20px; }
-        header img { width: 80px; }
-        .section-title { background: #e0f2f1; color: var(--odonto-cyan); padding: 8px; font-size: 0.75rem; font-weight: bold; border-radius: 5px; margin: 20px 0 10px; text-align: center; text-transform: uppercase; border: 1px solid #b2dfdb; }
-        label { display: block; margin-top: 12px; font-weight: bold; font-size: 0.85rem; color: #333; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 2px solid #dfe4ea; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
-        .vagas-info { margin-top: 15px; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; display: none; font-size: 0.9rem; }
-        .vagas-ok { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-        .vagas-zero { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
-        .btn-enviar { background: var(--odonto-cyan); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 25px; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,131,143,0.3); }
-        .btn-enviar:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
-        #comprovante { display: none; text-align: center; padding: 25px; border: 3px dashed var(--odonto-cyan); border-radius: 20px; }
+        :root { --odonto-cyan: #00838f; --cba-blue: #0a2c6d; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 0; }
+        header { background: var(--odonto-cyan); color: white; padding: 15px; text-align: center; border-bottom: 5px solid var(--cba-blue); }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        
+        .stats-bar { display: flex; gap: 20px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 20px; border-radius: 10px; flex: 1; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 6px solid var(--odonto-cyan); text-align: center; }
+        
+        .controls { background: white; padding: 15px; border-radius: 10px; display: flex; gap: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input#lupa { flex-grow: 1; padding: 12px; border: 1px solid #ccc; border-radius: 8px; }
+
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        th { background: #f1f3f4; padding: 15px; text-align: left; font-size: 12px; text-transform: uppercase; border-bottom: 2px solid #ddd; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; }
+        
+        .btn-del { color: #d32f2f; cursor: pointer; border: 1px solid #ffcdd2; padding: 5px; border-radius: 5px; background: none; }
+        
+        .import-section { margin-top: 30px; padding: 20px; background: #e0f2f1; border: 2px dashed var(--odonto-cyan); border-radius: 10px; }
+        textarea { width: 100%; height: 100px; margin-top: 10px; border-radius: 8px; padding: 10px; border: 1px solid #ccc; font-family: monospace; }
+        .btn-import { background: var(--cba-blue); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <header>
-        <img src="https://raw.githubusercontent.com/gestaob6cbax/INSPECAO-MEDICA-CBA-X-2026/main/logo_cba_x.png" alt="CBA X">
-        <h2 style="color: var(--cba-blue); margin: 10px 0;">Agendamento Odontológico</h2>
-        <p style="font-size: 0.8rem; font-weight: bold; color: #666;">CBA X - JUNTA DE SAÚDE</p>
-    </header>
+<header>
+    <h1>Painel ADM - Odontologia 2026</h1>
+    <p>CBA X - CONTROLE DE VAGAS (14 MANHÃ / 7 TARDE)</p>
+</header>
 
-    <div id="form-odonto">
-        <div class="section-title">Dados do Militar</div>
-        
-        <label>Unidade que o Militar serve</label>
-        <select id="unidadeOrigem">
-            <option value="">Selecione a Unidade...</option>
-            <option>CBA X</option>
-            <option>1º GMAR</option>
-            <option>3º GMAR</option>
-            <option>4º GMAR</option>
-            <option>DBM 4/M</option>
-            <option>DBM 5/M</option>
-        </select>
-
-        <label>Posto ou Graduação</label>
-        <select id="posto">
-            <option value="">Selecione...</option>
-            <option>CEL BM</option>
-            <option>TEN CEL BM</option>
-            <option>MAJ BM</option>
-            <option>CAP BM</option>
-            <option>1º TEN BM</option>
-            <option>2º TEN BM</option>
-            <option>SUBTEN BM</option>
-            <option>1º SGT BM</option>
-            <option>2º SGT BM</option>
-            <option>3º SGT BM</option>
-            <option>CB BM</option>
-            <option>SD BM</option>
-        </select>
-
-        <label>Nome Completo</label>
-        <input type="text" id="nome" placeholder="NOME SEM ABREVIAÇÕES" oninput="this.value = this.value.toUpperCase()">
-
-        <label>RG do Militar</label>
-        <input type="number" id="rg" placeholder="Digite o RG">
-
-        <div class="section-title">Dados do Agendamento</div>
-
-        <label>Selecione o Local</label>
-        <select id="localAtendimento" onchange="gerarDatas()">
-            <option value="">Selecione o Local...</option>
-            <option value="GBS">GBS (Enquanto durarem as obras da unidade da Barra)</option>
-            <option value="1º GMAR">1º GMAR</option>
-            <option value="3º GMAR">3º GMAR</option>
-            <option value="4º GMAR">CO (4º GMAR)</option>
-        </select>
-
-        <label>Data</label>
-        <select id="data" onchange="consultarVagas()"><option value="">Selecione o local primeiro...</option></select>
-
-        <label>Turno</label>
-        <select id="turno" onchange="consultarVagas()">
-            <option value="Manhã">Manhã (14 Vagas - 08:00 às 12:00)</option>
-            <option value="Tarde">Tarde (07 Vagas - 13:00 às 17:00)</option>
-        </select>
-
-        <div id="statusVagas" class="vagas-info"></div>
-        <button id="btnConfirmar" class="btn-enviar" onclick="finalizar()">Confirmar Agendamento</button>
+<div class="container">
+    <div class="stats-bar">
+        <div class="stat-card"><span>Total Odonto</span><br><strong id="cont-odonto" style="font-size:24px;">0</strong></div>
+        <div class="stat-card"><span>Status</span><br><strong style="color:green">SISTEMA ATIVO</strong></div>
     </div>
 
-    <div id="comprovante">
-        <h3 style="color: #00796b;">✅ AGENDAMENTO REALIZADO!</h3>
-        <p id="res-militar" style="font-weight: bold; color: var(--cba-blue);"></p>
-        <p id="res-data" style="font-size: 0.95rem;"></p>
-        <hr>
-        <button class="btn-enviar" onclick="window.print()">🖨️ Gerar PDF / Imprimir</button>
-        <button onclick="location.reload()" style="background:none; border:none; color:blue; text-decoration:underline; cursor:pointer; margin-top:15px;">Novo Agendamento</button>
+    <div class="controls">
+        <input type="text" id="lupa" placeholder="🔍 Buscar Militar ou RG na lista de Odonto..." onkeyup="filtrar()">
+        <button onclick="carregarOdonto()" style="padding:10px; cursor:pointer; border-radius:8px;">🔄 Atualizar</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Turno</th>
+                <th>Posto/Grad e Nome</th>
+                <th>RG</th>
+                <th style="text-align:center;">Ações</th>
+            </tr>
+        </thead>
+        <tbody id="tabelaOdonto">
+            <tr><td colspan="5" style="text-align:center; padding:20px;">Carregando agendamentos...</td></tr>
+        </tbody>
+    </table>
+
+    <div class="import-section">
+        <h3>📥 Sincronizar Agendamentos Antigos (Excel)</h3>
+        <p style="font-size: 12px;">Cole: <b>Data | Turno | Unidade | Nome | RG</b></p>
+        <textarea id="textoExcelOdonto" placeholder="Cole os dados da planilha de odontologia aqui..."></textarea>
+        <button class="btn-import" onclick="importarDoExcel()">🚀 Sincronizar e Bloquear Vagas</button>
     </div>
 </div>
 
@@ -112,76 +80,82 @@
         messagingSenderId: "1011281662526",
         appId: "1:1011281662526:web:1028e8a8d140684e98376f"
     };
-    firebase.initializeApp(firebaseConfig);
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    function gerarDatas() {
-        const sel = document.getElementById("data");
-        sel.innerHTML = '<option value="">Selecione a data...</option>';
-        let d = new Date("2026-03-10T12:00:00");
-        for(let i=0; i<45; i++) {
-            if(d.getDay() !== 0 && d.getDay() !== 6) {
-                let s = d.toLocaleDateString('pt-BR');
-                let o = document.createElement("option");
-                o.value = s; o.innerText = s;
-                sel.appendChild(o);
+    async function carregarOdonto() {
+        const corpo = document.getElementById("tabelaOdonto");
+        try {
+            const snap = await db.collection("agendamentos_odonto").get();
+            let lista = [];
+            snap.forEach(doc => lista.push({id: doc.id, ...doc.data()}));
+
+            // Ordenação por Data (Crescente)
+            lista.sort((a,b) => {
+                const da = a.data.split('/').reverse().join('');
+                const db = b.data.split('/').reverse().join('');
+                return da.localeCompare(db);
+            });
+
+            let html = "";
+            lista.forEach(d => {
+                html += `<tr>
+                    <td><b>${d.data}</b></td>
+                    <td>${d.turno}</td>
+                    <td>${d.posto || ""} ${d.nome}</td>
+                    <td><code>${d.rg}</code></td>
+                    <td style="text-align:center;">
+                        <button class="btn-del" onclick="excluirOdonto('${d.id}')">🗑️</button>
+                    </td>
+                </tr>`;
+            });
+
+            corpo.innerHTML = html || "<tr><td colspan='5' style='text-align:center;'>Nenhum registro.</td></tr>";
+            document.getElementById("cont-odonto").innerText = lista.length;
+        } catch (e) { console.error(e); }
+    }
+
+    async function importarDoExcel() {
+        const raw = document.getElementById("textoExcelOdonto").value;
+        if(!raw.trim()) return alert("Cole os dados primeiro!");
+        
+        const linhas = raw.split('\n');
+        let count = 0;
+
+        for(let l of linhas) {
+            const c = l.split('\t');
+            if(c.length >= 5) {
+                await db.collection("agendamentos_odonto").add({
+                    data: c[0].trim(),
+                    turno: c[1].trim(),
+                    unidade: c[2].trim(),
+                    nome: c[3].trim().toUpperCase(),
+                    rg: c[4].trim(),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                count++;
             }
-            d.setDate(d.getDate() + 1);
+        }
+        alert(count + " militares de Odonto sincronizados!");
+        carregarOdonto();
+        document.getElementById("textoExcelOdonto").value = "";
+    }
+
+    function filtrar() {
+        const busca = document.getElementById("lupa").value.toUpperCase();
+        const rows = document.querySelectorAll("#tabelaOdonto tr");
+        rows.forEach(r => r.style.display = r.innerText.toUpperCase().includes(busca) ? "" : "none");
+    }
+
+    async function excluirOdonto(id) {
+        if(confirm("Deseja excluir este agendamento odontológico?")) {
+            await db.collection("agendamentos_odonto").doc(id).delete();
+            carregarOdonto();
         }
     }
 
-    async function consultarVagas() {
-        const dt = document.getElementById("data").value;
-        const tr = document.getElementById("turno").value;
-        const loc = document.getElementById("localAtendimento").value;
-        const status = document.getElementById("statusVagas");
-        const btn = document.getElementById("btnConfirmar");
-
-        if(!dt || !loc) return;
-        status.style.display = "block";
-        status.innerText = "Consultando disponibilidade...";
-
-        const limite = (tr === "Manhã") ? 14 : 7;
-        const snap = await db.collection("agendamentos_odonto")
-                           .where("localAtendimento", "==", loc)
-                           .where("data", "==", dt)
-                           .where("turno", "==", tr).get();
-        
-        const restam = limite - snap.size;
-        if(restam <= 0) {
-            status.innerText = "❌ VAGAS ESGOTADAS PARA ESTE TURNO";
-            status.className = "vagas-info vagas-zero";
-            btn.disabled = true;
-        } else {
-            status.innerText = `✅ VAGAS DISPONÍVEIS: ${restam}`;
-            status.className = "vagas-info vagas-ok";
-            btn.disabled = false;
-        }
-    }
-
-    async function finalizar() {
-        const btn = document.getElementById("btnConfirmar");
-        const dados = {
-            unidadeOrigem: document.getElementById("unidadeOrigem").value,
-            posto: document.getElementById("posto").value,
-            nome: document.getElementById("nome").value.toUpperCase(),
-            rg: document.getElementById("rg").value,
-            localAtendimento: document.getElementById("localAtendimento").value,
-            data: document.getElementById("data").value,
-            turno: document.getElementById("turno").value,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        if(!dados.unidadeOrigem || !dados.nome || !dados.rg || !dados.data) return alert("Preencha todos os campos!");
-        
-        btn.innerText = "SALVANDO..."; btn.disabled = true;
-        await db.collection("agendamentos_odonto").add(dados);
-        
-        document.getElementById("form-odonto").style.display = "none";
-        document.getElementById("comprovante").style.display = "block";
-        document.getElementById("res-militar").innerText = `${dados.posto} ${dados.nome}`;
-        document.getElementById("res-data").innerText = `Local: ${dados.localAtendimento} | Data: ${dados.data} | Turno: ${dados.turno}`;
-    }
+    window.onload = carregarOdonto;
 </script>
 </body>
 </html>
