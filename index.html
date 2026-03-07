@@ -34,7 +34,7 @@
     <header>
         <img src="https://raw.githubusercontent.com/gestaob6cbax/INSPECAO-MEDICA-CBA-X-2026/main/logo_cba_x.png" alt="Logo CBA X">
         <h2 style="color: var(--cba-blue); margin: 0;">Agendamento Odontológico</h2>
-        <p style="font-size: 0.85rem; font-weight: bold; color: #666; margin-top: 5px;">CBA X - JUNTA DE SAÚDE</p>
+        <p style="font-size: 0.85rem; font-weight: bold; color: #666; margin-top: 5px;">CBA X - 6ª Seção</p>
     </header>
 
     <div id="form-odonto">
@@ -85,7 +85,7 @@
             <option value="GBS">GBS (Enquanto durarem as obras da unidade da Barra)</option>
             <option value="1º GMAR">1º GMAR - Botafogo</option>
             <option value="3º GMAR">3º GMAR - Copacabana</option>
-            <option value="4º GMAR">CO (4º GMAR - Itaipu)</option>
+            <option value="4º GMAR">CEPO (4º GMAR - Itaipu)</option>
         </select>
 
         <label>Data</label>
@@ -165,11 +165,13 @@
 
     async function finalizar() {
         const btn = document.getElementById("btnConfirmar");
+        const rg = document.getElementById("rg").value; // Pega o RG para conferir
+        
         const dados = {
             unidadeOrigem: document.getElementById("unidadeOrigem").value,
             posto: document.getElementById("posto").value,
             nome: document.getElementById("nome").value.toUpperCase(),
-            rg: document.getElementById("rg").value,
+            rg: rg,
             email: document.getElementById("email").value,
             telefone: document.getElementById("telefone").value,
             localAtendimento: document.getElementById("localAtendimento").value,
@@ -178,18 +180,41 @@
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
         
+        // 1. VERIFICAÇÃO DE CAMPOS VAZIOS
         if(!dados.unidadeOrigem || !dados.nome || !dados.rg || !dados.data) {
-            return alert("Por favor, preencha todos os campos obrigatórios!");
+            return alert("⚠️ Por favor, preencha todos os campos obrigatórios!");
         }
         
-        btn.innerText = "SALVANDO..."; btn.disabled = true;
-        await db.collection("agendamentos_odonto").add(dados);
-        
-        document.getElementById("form-odonto").style.display = "none";
-        document.getElementById("comprovante").style.display = "block";
-        document.getElementById("res-militar").innerText = `${dados.posto} ${dados.nome}`;
-        document.getElementById("res-contato").innerText = `E-mail: ${dados.email} | Tel: ${dados.telefone}`;
-        document.getElementById("res-data").innerText = `Local: ${dados.localAtendimento} | Data: ${dados.data} | Turno: ${dados.turno}`;
+        btn.innerText = "⏳ VERIFICANDO RG..."; 
+        btn.disabled = true;
+
+        try {
+            // 2. A TRAVA: Busca se este RG já existe na coleção de odontologia
+            const consultaRG = await db.collection("agendamentos_odonto").where("rg", "==", rg).get();
+
+            if (!consultaRG.empty) {
+                alert("❌ ERRO: Este RG (" + rg + ") já possui um agendamento odontológico realizado.");
+                btn.innerText = "Confirmar Agendamento";
+                btn.disabled = false;
+                return; // Para o código aqui e não salva nada
+            }
+
+            // 3. SE CHEGOU AQUI, O RG É NOVO: Então salva
+            btn.innerText = "💾 SALVANDO...";
+            await db.collection("agendamentos_odonto").add(dados);
+            
+            document.getElementById("form-odonto").style.display = "none";
+            document.getElementById("comprovante").style.display = "block";
+            document.getElementById("res-militar").innerText = `${dados.posto} ${dados.nome}`;
+            document.getElementById("res-contato").innerText = `E-mail: ${dados.email} | Tel: ${dados.telefone}`;
+            document.getElementById("res-data").innerText = `Local: ${dados.localAtendimento} | Data: ${dados.data} | Turno: ${dados.turno}`;
+
+        } catch (e) { 
+            console.error(e);
+            alert("⚠️ Erro técnico ao salvar. Tente novamente."); 
+            btn.innerText = "Confirmar Agendamento";
+            btn.disabled = false; 
+        }
     }
 </script>
 </body>
