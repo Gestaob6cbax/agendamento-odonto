@@ -10,15 +10,21 @@
         :root { --odonto-cyan: #00838f; --cba-blue: #0a2c6d; }
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 15px; display: flex; justify-content: center; }
         .card { width: 100%; max-width: 550px; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 12px solid var(--odonto-cyan); }
+        
         header { text-align: center; margin-bottom: 20px; }
+        header img { width: 90px; height: auto; margin-bottom: 10px; }
+        
         .section-title { background: #e0f2f1; color: var(--odonto-cyan); padding: 8px; font-size: 0.75rem; font-weight: bold; border-radius: 5px; margin: 20px 0 10px; text-align: center; text-transform: uppercase; border: 1px solid #b2dfdb; }
         label { display: block; margin-top: 12px; font-weight: bold; font-size: 0.85rem; color: #333; }
         input, select { width: 100%; padding: 12px; margin-top: 5px; border: 2px solid #dfe4ea; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
+        
         .vagas-info { margin-top: 15px; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; display: none; font-size: 0.9rem; }
         .vagas-ok { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
         .vagas-zero { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        
         .btn-enviar { background: var(--odonto-cyan); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 25px; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,131,143,0.3); }
-        .btn-enviar:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-enviar:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
+        
         #comprovante { display: none; text-align: center; padding: 25px; border: 3px dashed var(--odonto-cyan); border-radius: 20px; }
     </style>
 </head>
@@ -26,8 +32,9 @@
 
 <div class="card">
     <header>
-        <h2 style="color: var(--cba-blue); margin: 10px 0;">Agendamento Odontológico 2026</h2>
-        <p style="font-size: 0.8rem; font-weight: bold; color: #666;">CBA X - JUNTA DE SAÚDE</p>
+        <img src="https://raw.githubusercontent.com/gestaob6cbax/INSPECAO-MEDICA-CBA-X-2026/main/logo_cba_x.png" alt="Logo CBA X">
+        <h2 style="color: var(--cba-blue); margin: 0;">Agendamento Odontológico</h2>
+        <p style="font-size: 0.85rem; font-weight: bold; color: #666; margin-top: 5px;">CBA X - JUNTA DE SAÚDE</p>
     </header>
 
     <div id="form-odonto">
@@ -62,7 +69,7 @@
         <input type="text" id="nome" placeholder="NOME SEM ABREVIAÇÕES" oninput="this.value = this.value.toUpperCase()">
 
         <label>RG do Militar</label>
-        <input type="number" id="rg" placeholder="Digite o RG">
+        <input type="number" id="rg" placeholder="RG do Militar">
 
         <label>E-mail Corporativo ou Pessoal</label>
         <input type="email" id="email" placeholder="militar@exemplo.com">
@@ -95,6 +102,7 @@
     </div>
 
     <div id="comprovante">
+        <img src="https://raw.githubusercontent.com/gestaob6cbax/INSPECAO-MEDICA-CBA-X-2026/main/logo_cba_x.png" width="60" alt="Logo CBA X">
         <h3 style="color: #00796b;">✅ AGENDAMENTO REALIZADO!</h3>
         <p id="res-militar" style="font-weight: bold; color: var(--cba-blue);"></p>
         <p id="res-contato" style="font-size: 0.85rem; color: #555;"></p>
