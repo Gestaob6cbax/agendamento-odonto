@@ -3,224 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agendamento Odontológico 2026 - CBA X</title>
+    <title>Odontologia 2026 - CBA X</title>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <style>
-        :root { --odonto-cyan: #00838f; --cba-blue: #0a2c6d; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 15px; display: flex; justify-content: center; }
-        .card { width: 100%; max-width: 550px; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 12px solid var(--odonto-cyan); }
-        
+        :root { --cba-color: #009688; --cba-blue: #0a2c6d; } /* Cor verde água para Odonto */
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 10px; display: flex; justify-content: center; }
+        .premium-card { width: 100%; max-width: 480px; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 8px solid var(--cba-color); }
         header { text-align: center; margin-bottom: 20px; }
-        header img { width: 90px; height: auto; margin-bottom: 10px; }
+        header img { width: 70px; margin-bottom: 10px; }
+        header h2 { color: var(--cba-blue); font-size: 1.2rem; text-transform: uppercase; margin: 5px 0; }
+        .section-title { background: var(--cba-color); color: white; padding: 8px; font-size: 0.7rem; font-weight: bold; border-radius: 5px; margin-top: 15px; text-transform: uppercase; text-align: center; }
+        label { display: block; margin-top: 12px; font-weight: 700; color: #333; font-size: 0.65rem; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 2px solid #dfe4ea; border-radius: 8px; box-sizing: border-box; font-size: 15px; background: #fcfcfc; outline: none; }
+        input:focus, select:focus { border-color: var(--cba-color); }
+        .btn-confirmar { background: var(--cba-color); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 25px; text-transform: uppercase; font-size: 1rem; transition: 0.3s; }
+        #sucesso { display: none; text-align: center; }
+        .caixa-confirmacao { border: 2px dashed var(--cba-color); padding: 20px; border-radius: 12px; margin: 15px 0; background: #fffdfd; }
+        .nome-militar { color: var(--cba-blue); font-weight: 900; font-size: 1.1rem; text-transform: uppercase; }
+        .link-outro { display:block; margin-top:15px; cursor:pointer; font-size:0.8rem; color:var(--cba-blue); text-decoration:underline; }
         
-        .section-title { background: #e0f2f1; color: var(--odonto-cyan); padding: 8px; font-size: 0.75rem; font-weight: bold; border-radius: 5px; margin: 20px 0 10px; text-align: center; text-transform: uppercase; border: 1px solid #b2dfdb; }
-        label { display: block; margin-top: 12px; font-weight: bold; font-size: 0.85rem; color: #333; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 2px solid #dfe4ea; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
-        
-        .vagas-info { margin-top: 15px; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; display: none; font-size: 0.9rem; }
-        .vagas-ok { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-        .vagas-zero { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
-        
-        .btn-enviar { background: var(--odonto-cyan); color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 25px; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,131,143,0.3); }
-        .btn-enviar:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
-        
-        #comprovante { display: none; text-align: center; padding: 25px; border: 3px dashed var(--odonto-cyan); border-radius: 20px; }
-
-        @media print {
-            .btn-enviar, .section-title, header, button, .vagas-info, label, input, select { display: none !important; }
-            #comprovante { display: block !important; border: 2px solid #000; padding: 30px; }
+        @media print { 
+            .btn-confirmar, .link-outro, #form-content, .section-title { display: none !important; } 
+            .premium-card { border: none; box-shadow: none; width: 100%; } 
+            #sucesso { display: block !important; } 
         }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <header>
-        <img src="https://raw.githubusercontent.com/gestaob6cbax/INSPECAO-MEDICA-CBA-X-2026/main/logo_cba_x.png" alt="Logo CBA X">
-        <h2 style="color: var(--cba-blue); margin: 0;">Agendamento Odontológico</h2>
-        <p style="font-size: 0.85rem; font-weight: bold; color: #666; margin-top: 5px;">CBA X - Agendamento Odontológico</p>
-    </header>
+<div class="premium-card">
+    <div id="form-content">
+        <header>
+            <img src="https://raw.githubusercontent.com/gestaob6cbax/agendamento-odonto-cbax/main/logo_odonto.png">
+            <h2>Agendamento Odontológico 2026</h2>
+            <p style="font-weight: bold; font-size: 0.7rem; color: #666;">CBA X - COMANDO DE BOMBEIROS DE ÁREA</p>
+        </header>
 
-    <div id="form-odonto">
-        <div class="section-title">Identificação do Militar</div>
-        
-        <label>Unidade que o Militar serve</label>
-        <select id="unidadeOrigem">
-            <option value="">Selecione a Unidade...</option>
-            <option value="CBA X">CBA X</option>
-            <option value="CER">CER</option>
-            <option value="1º GMAR">1º GMAR - Botafogo</option>
-            <option value="2º GMAR">2º GMAR - Barra da Tijuca</option>
-            <option value="3º GMAR">3º GMAR - Copacabana</option>
-            <option value="4º GMAR">4º GMAR - Itaipu</option>
-            <option value="DBM 1/M">DBM 1/M - Paquetá</option>
-            <option value="DBM 2/M">DBM 2/M - Piscinão de Ramos</option>
-            <option value="DBM 3/M">DBM 3/M - Recreio dos Bandeirantes</option>
-            <option value="DBM 4/M">DBM 4/M - Barra de Guaratiba</option>
-            <option value="DBM 5/M">DBM 5/M - Sepetiba</option>
-            <option value="DBM 6/M">DBM 6/M</option>
+        <div class="section-title">Bloco 1: Identificação</div>
+        <label>Unidade de Origem</label>
+        <select id="unidade">
+            <option value="">Selecione sua Unidade...</option>
+            <option>CBA X</option><option>1º GMAR</option><option>2º GMAR</option><option>3º GMAR</option>
+            <option>4º GMAR</option><option>GBS</option><option>DBM 1/M</option><option>DBM 2/M</option>
+            <option>DBM 3/M</option><option>DBM 4/M</option><option>DBM 5/M</option><option>DBM 6/M</option>
         </select>
 
-        <label>Posto ou Graduação</label>
+        <label>Posto / Graduação</label>
         <select id="posto">
             <option value="">Selecione...</option>
-            <option>CEL BM</option><option>TEN CEL BM</option><option>MAJ BM</option>
-            <option>CAP BM</option><option>1º TEN BM</option><option>2º TEN BM</option>
-            <option>SUBTEN BM</option><option>1º SGT BM</option><option>2º SGT BM</option>
-            <option>3º SGT BM</option><option>CB BM</option><option>SD BM</option>
+            <option>SD</option><option>CB</option><option>3º SGT</option><option>2º SGT</option><option>1º SGT</option>
+            <option>SUBTEN</option><option>TEN</option><option>CAP</option><option>MAJ</option><option>TC</option><option>CEL</option>
         </select>
-
+        
         <label>Nome Completo</label>
-        <input type="text" id="nome" placeholder="NOME SEM ABREVIAÇÕES" oninput="this.value = this.value.toUpperCase()">
-
-        <label>RG do Militar</label>
-        <input type="number" id="rg" placeholder="RG do Militar">
-
-        <label>E-mail Corporativo ou Pessoal</label>
-        <input type="email" id="email" placeholder="militar@exemplo.com">
-
-        <label>Telefone Celular (WhatsApp)</label>
+        <input type="text" id="nome" placeholder="NOME COMPLETO" oninput="this.value = this.value.toUpperCase()">
+        
+        <label>RG Militar</label>
+        <input type="number" id="rg" placeholder="Somente números">
+        
+        <label>Telefone / WhatsApp</label>
         <input type="tel" id="telefone" placeholder="(XX) 9XXXX-XXXX">
 
-        <div class="section-title">Dados da Consulta</div>
-
-        <label>Selecione o Local de Atendimento</label>
-        <select id="localAtendimento" onchange="gerarDatas()">
-            <option value="">Selecione o Local...</option>
-            <option value="GBS">GBS (Enquanto durarem as obras da unidade da Barra)</option>
-            <option value="1º GMAR">1º GMAR - Botafogo</option>
-            <option value="3º GMAR">3º GMAR - Copacabana</option>
-            <option value="4º GMAR">CEPO (4º GMAR - Itaipu)</option>
-        </select>
-
-        <label>Data</label>
-        <select id="data" onchange="consultarVagas()"><option value="">Aguardando local...</option></select>
+        <div class="section-title">Bloco 2: Agendamento</div>
+        <label>Escolha a Data</label>
+        <input type="date" id="data">
 
         <label>Turno</label>
-        <select id="turno" onchange="consultarVagas()">
-            <option value="Manhã">Manhã (14 Vagas - 08:00 às 12:00)</option>
-            <option value="Tarde">Tarde (07 Vagas - 13:00 às 17:00)</option>
+        <select id="turno">
+            <option value="">Selecione o Turno...</option>
+            <option value="Manhã">Manhã (08:00 às 12:00)</option>
+            <option value="Tarde">Tarde (13:00 às 17:00)</option>
         </select>
 
-        <div id="statusVagas" class="vagas-info"></div>
-        <button id="btnConfirmar" class="btn-enviar" onclick="finalizar()">Confirmar Agendamento</button>
+        <button id="btnSalvar" class="btn-confirmar" onclick="salvar()">Confirmar Agendamento</button>
     </div>
 
-    <div id="comprovante">
-        <img src="https://raw.githubusercontent.com/gestaob6cbax/INSPECAO-MEDICA-CBA-X-2026/main/logo_cba_x.png" width="60" alt="Logo CBA X">
-        <h3 style="color: #00796b;">✅ AGENDAMENTO REALIZADO!</h3>
-        <p id="res-militar" style="font-weight: bold; color: var(--cba-blue);"></p>
-        <p id="res-info-oficial" style="font-weight: bold; color: #b71c1c; margin: 10px 0;"></p>
-        <p id="res-contato" style="font-size: 0.85rem; color: #555;"></p>
-        <p id="res-data" style="font-size: 0.95rem; margin-top: 10px;"></p>
-        <hr>
-        <button class="btn-enviar" onclick="window.print()">🖨️ Imprimir Comprovante</button>
-        <button onclick="location.reload()" style="background:none; border:none; color:blue; text-decoration:underline; cursor:pointer; margin-top:15px;">Novo Agendamento</button>
+    <div id="sucesso">
+        <header>
+            <img src="https://raw.githubusercontent.com/gestaob6cbax/agendamento-odonto-cbax/main/logo_odonto.png">
+            <h2>Agendamento Confirmado!</h2>
+        </header>
+        <div class="caixa-confirmacao">
+            <div class="nome-militar" id="res-nome"></div>
+            <div style="font-size: 0.85rem; margin-top: 10px; line-height: 1.6;">
+                RG: <span id="res-rg" style="font-weight:bold;"></span><br>
+                Data: <span id="res-data" style="font-weight:bold;"></span><br>
+                Turno: <span id="res-turno" style="font-weight:bold;"></span>
+            </div>
+        </div>
+        <button class="btn-confirmar" style="background:#555" onclick="window.print()">🖨️ IMPRIMIR COMPROVANTE</button>
+        <span class="link-outro" onclick="location.reload()">Novo Agendamento</span>
     </div>
 </div>
 
 <script>
     const firebaseConfig = { 
-        apiKey: "AIzaSyBkq2D8JFuxzPTI2z_Iirg3rYfSFfPJRXY",
-        authDomain: "inspecao-saude-cbax.firebaseapp.com",
-        projectId: "inspecao-saude-cbax",
-        storageBucket: "inspecao-saude-cbax.firebasestorage.app",
-        messagingSenderId: "1011281662526",
-        appId: "1:1011281662526:web:1028e8a8d140684e98376f"
+        apiKey: "AIzaSyBkq2D8JFuxzPTI2z_Iirg3rYfSFfPJRXY", 
+        authDomain: "agendamento-odonto-cbax.firebaseapp.com", 
+        projectId: "agendamento-odonto-cbax", 
+        storageBucket: "agendamento-odonto-cbax.firebasestorage.app", 
+        messagingSenderId: "1011281662526", 
+        appId: "1:1011281662526:web:1028e8a8d140684e98376f" 
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    function gerarDatas() {
-        const sel = document.getElementById("data");
-        sel.innerHTML = '<option value="">Selecione a data...</option>';
-        let d = new Date("2026-03-10T12:00:00");
-        for(let i=0; i<45; i++) {
-            if(d.getDay() !== 0 && d.getDay() !== 6) {
-                let s = d.toLocaleDateString('pt-BR');
-                let o = document.createElement("option"); o.value = s; o.innerText = s;
-                sel.appendChild(o);
-            }
-            d.setDate(d.getDate() + 1);
-        }
-    }
-
-    async function consultarVagas() {
-        const dt = document.getElementById("data").value;
-        const tr = document.getElementById("turno").value;
-        const loc = document.getElementById("localAtendimento").value;
-        if(!dt || !loc) return;
-        const status = document.getElementById("statusVagas");
-        status.style.display = "block"; status.innerText = "Verificando...";
-        
-        const limite = (tr === "Manhã") ? 14 : 7;
-        const snap = await db.collection("agendamentos_odonto")
-                            .where("localAtendimento", "==", loc)
-                            .where("data", "==", dt)
-                            .where("turno", "==", tr).get();
-        const restam = limite - snap.size;
-
-        if(restam <= 0) {
-            status.innerText = "❌ VAGAS ESGOTADAS PARA ESTE TURNO"; status.className = "vagas-info vagas-zero";
-            document.getElementById("btnConfirmar").disabled = true;
-        } else {
-            status.innerText = `✅ VAGAS DISPONÍVEIS: ${restam}`; status.className = "vagas-info vagas-ok";
-            document.getElementById("btnConfirmar").disabled = false;
-        }
-    }
-
-    async function finalizar() {
-        const btn = document.getElementById("btnConfirmar");
-        const rg = document.getElementById("rg").value;
-        
+    async function salvar() {
         const dados = {
-            unidadeOrigem: document.getElementById("unidadeOrigem").value,
+            unidade: document.getElementById("unidade").value,
             posto: document.getElementById("posto").value,
-            nome: document.getElementById("nome").value.toUpperCase(),
-            rg: rg,
-            email: document.getElementById("email").value,
+            nome: document.getElementById("nome").value,
+            rg: document.getElementById("rg").value,
             telefone: document.getElementById("telefone").value,
-            localAtendimento: document.getElementById("localAtendimento").value,
-            data: document.getElementById("data").value,
+            data: document.getElementById("data").value.split('-').reverse().join('/'),
             turno: document.getElementById("turno").value,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
-        
-        if(!dados.unidadeOrigem || !dados.nome || !dados.rg || !dados.data) {
-            return alert("⚠️ Por favor, preencha todos os campos obrigatórios!");
+
+        if(!dados.nome || !dados.rg || !dados.data || !dados.turno) {
+            return alert("Preencha todos os campos obrigatórios!");
         }
-        
-        btn.innerText = "⏳ VERIFICANDO RG..."; 
-        btn.disabled = true;
 
         try {
-            const consultaRG = await db.collection("agendamentos_odonto").where("rg", "==", rg).get();
-
-            if (!consultaRG.empty) {
-                alert("❌ ERRO: Este RG (" + rg + ") já possui um agendamento odontológico realizado.");
-                btn.innerText = "Confirmar Agendamento";
-                btn.disabled = false;
-                return;
-            }
-
-            btn.innerText = "💾 SALVANDO...";
             await db.collection("agendamentos_odonto").add(dados);
             
-            document.getElementById("form-odonto").style.display = "none";
-            document.getElementById("comprovante").style.display = "block";
-            document.getElementById("res-militar").innerText = `${dados.posto} ${dados.nome}`;
-            
-            document.getElementById("res-info-oficial").innerText = "FINALIDADE: AGENDAMENTO ODONTOLÓGICO 2026";
-            
-            document.getElementById("res-contato").innerText = `RG: ${dados.rg} | Tel: ${dados.telefone}`;
-            document.getElementById("res-data").innerText = `Local: ${dados.localAtendimento} | Data: ${dados.data} | Turno: ${dados.turno}`;
-
-        } catch (e) { 
-            console.error(e);
-            alert("⚠️ Erro técnico ao salvar. Tente novamente."); 
-            btn.innerText = "Confirmar Agendamento";
-            btn.disabled = false; 
+            document.getElementById("form-content").style.display = "none";
+            document.getElementById("sucesso").style.display = "block";
+            document.getElementById("res-nome").innerText = dados.nome;
+            document.getElementById("res-rg").innerText = dados.rg;
+            document.getElementById("res-data").innerText = dados.data;
+            document.getElementById("res-turno").innerText = dados.turno;
+        } catch (e) {
+            alert("Erro ao salvar: " + e.message);
         }
     }
 </script>
