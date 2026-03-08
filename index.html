@@ -26,6 +26,11 @@
         .btn-enviar:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
         
         #comprovante { display: none; text-align: center; padding: 25px; border: 3px dashed var(--odonto-cyan); border-radius: 20px; }
+
+        @media print {
+            .btn-enviar, .section-title, header, button, .vagas-info, label, input, select { display: none !important; }
+            #comprovante { display: block !important; border: 2px solid #000; padding: 30px; }
+        }
     </style>
 </head>
 <body>
@@ -34,7 +39,7 @@
     <header>
         <img src="https://raw.githubusercontent.com/gestaob6cbax/INSPECAO-MEDICA-CBA-X-2026/main/logo_cba_x.png" alt="Logo CBA X">
         <h2 style="color: var(--cba-blue); margin: 0;">Agendamento Odontológico</h2>
-        <p style="font-size: 0.85rem; font-weight: bold; color: #666; margin-top: 5px;">CBA X -Agendamento Odontológico</p>
+        <p style="font-size: 0.85rem; font-weight: bold; color: #666; margin-top: 5px;">CBA X - Agendamento Odontológico</p>
     </header>
 
     <div id="form-odonto">
@@ -43,17 +48,18 @@
         <label>Unidade que o Militar serve</label>
         <select id="unidadeOrigem">
             <option value="">Selecione a Unidade...</option>
-            <option>CBA X</option>
-            <option>1º GMAR - Botafogo</option>
-            <option>2º GMAR - Barra da Tijuca</option>
-            <option>3º GMAR - Copacabana</option>
-            <option>4º GMAR - Itaipu</option>
-            <option>DBM 1/M - Paquetá</option>
-            <option>DBM 2/M - Piscinão de Ramos</option>
-            <option>DBM 3/M - Recreio dos Bandeirantes</option>
-            <option>DBM 4/M - Barra de Guaratiba</option>
-            <option>DBM 5/M - Sepetiba</option>
-            <option>DBM 6/M</option>
+            <option value="CBA X">CBA X</option>
+            <option value="CER">CER</option>
+            <option value="1º GMAR">1º GMAR - Botafogo</option>
+            <option value="2º GMAR">2º GMAR - Barra da Tijuca</option>
+            <option value="3º GMAR">3º GMAR - Copacabana</option>
+            <option value="4º GMAR">4º GMAR - Itaipu</option>
+            <option value="DBM 1/M">DBM 1/M - Paquetá</option>
+            <option value="DBM 2/M">DBM 2/M - Piscinão de Ramos</option>
+            <option value="DBM 3/M">DBM 3/M - Recreio dos Bandeirantes</option>
+            <option value="DBM 4/M">DBM 4/M - Barra de Guaratiba</option>
+            <option value="DBM 5/M">DBM 5/M - Sepetiba</option>
+            <option value="DBM 6/M">DBM 6/M</option>
         </select>
 
         <label>Posto ou Graduação</label>
@@ -105,6 +111,7 @@
         <img src="https://raw.githubusercontent.com/gestaob6cbax/INSPECAO-MEDICA-CBA-X-2026/main/logo_cba_x.png" width="60" alt="Logo CBA X">
         <h3 style="color: #00796b;">✅ AGENDAMENTO REALIZADO!</h3>
         <p id="res-militar" style="font-weight: bold; color: var(--cba-blue);"></p>
+        <p id="res-info-oficial" style="font-weight: bold; color: #b71c1c; margin: 10px 0;"></p>
         <p id="res-contato" style="font-size: 0.85rem; color: #555;"></p>
         <p id="res-data" style="font-size: 0.95rem; margin-top: 10px;"></p>
         <hr>
@@ -149,9 +156,9 @@
         
         const limite = (tr === "Manhã") ? 14 : 7;
         const snap = await db.collection("agendamentos_odonto")
-                           .where("localAtendimento", "==", loc)
-                           .where("data", "==", dt)
-                           .where("turno", "==", tr).get();
+                            .where("localAtendimento", "==", loc)
+                            .where("data", "==", dt)
+                            .where("turno", "==", tr).get();
         const restam = limite - snap.size;
 
         if(restam <= 0) {
@@ -165,7 +172,7 @@
 
     async function finalizar() {
         const btn = document.getElementById("btnConfirmar");
-        const rg = document.getElementById("rg").value; // Pega o RG para conferir
+        const rg = document.getElementById("rg").value;
         
         const dados = {
             unidadeOrigem: document.getElementById("unidadeOrigem").value,
@@ -180,7 +187,6 @@
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
         
-        // 1. VERIFICAÇÃO DE CAMPOS VAZIOS
         if(!dados.unidadeOrigem || !dados.nome || !dados.rg || !dados.data) {
             return alert("⚠️ Por favor, preencha todos os campos obrigatórios!");
         }
@@ -189,24 +195,25 @@
         btn.disabled = true;
 
         try {
-            // 2. A TRAVA: Busca se este RG já existe na coleção de odontologia
             const consultaRG = await db.collection("agendamentos_odonto").where("rg", "==", rg).get();
 
             if (!consultaRG.empty) {
                 alert("❌ ERRO: Este RG (" + rg + ") já possui um agendamento odontológico realizado.");
                 btn.innerText = "Confirmar Agendamento";
                 btn.disabled = false;
-                return; // Para o código aqui e não salva nada
+                return;
             }
 
-            // 3. SE CHEGOU AQUI, O RG É NOVO: Então salva
             btn.innerText = "💾 SALVANDO...";
             await db.collection("agendamentos_odonto").add(dados);
             
             document.getElementById("form-odonto").style.display = "none";
             document.getElementById("comprovante").style.display = "block";
             document.getElementById("res-militar").innerText = `${dados.posto} ${dados.nome}`;
-            document.getElementById("res-contato").innerText = `E-mail: ${dados.email} | Tel: ${dados.telefone}`;
+            
+            document.getElementById("res-info-oficial").innerText = "FINALIDADE: AGENDAMENTO ODONTOLÓGICO 2026";
+            
+            document.getElementById("res-contato").innerText = `RG: ${dados.rg} | Tel: ${dados.telefone}`;
             document.getElementById("res-data").innerText = `Local: ${dados.localAtendimento} | Data: ${dados.data} | Turno: ${dados.turno}`;
 
         } catch (e) { 
