@@ -16,7 +16,7 @@
             --bg: #f0f2f5;
             --success: #27ae60;
             --warning: #f39c12;
-            --odonto-color: #009688;
+            --odonto-color: #009688; /* VERDE TURQUESA MANTIDO */
             --white: #ffffff;
             --shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
@@ -49,7 +49,7 @@
 
         .header-info h1 { 
             margin: 0; 
-            color: var(--cba-blue); 
+            color: var(--odonto-color); /* ALTERADO PARA TURQUESA */
             font-size: 1.8rem; 
             letter-spacing: -0.5px;
         }
@@ -117,7 +117,7 @@
             border-radius: 15px; 
             text-align: center; 
             box-shadow: 0 4px 8px rgba(0,0,0,0.04); 
-            border-bottom: 5px solid var(--cba-blue); 
+            border-bottom: 5px solid var(--odonto-color); /* ALTERADO PARA TURQUESA */
             transition: transform 0.2s;
         }
 
@@ -139,7 +139,7 @@
         .card-unidade p { 
             font-size: 2rem; 
             font-weight: 800; 
-            color: var(--cba-blue); 
+            color: var(--odonto-color); /* ALTERADO PARA TURQUESA */
             margin: 8px 0 0; 
         }
 
@@ -182,7 +182,7 @@
         }
 
         .btn:hover { opacity: 0.9; }
-        .btn-refresh { background-color: var(--cba-blue); }
+        .btn-refresh { background-color: var(--odonto-color); } /* ALTERADO PARA TURQUESA */
         .btn-excel { background-color: var(--success); }
         .btn-danger { background-color: var(--cba-red); }
 
@@ -206,7 +206,7 @@
             text-align: left; 
             font-size: 0.75rem; 
             text-transform: uppercase; 
-            color: #aaa; 
+            color: var(--odonto-color); /* ALTERADO PARA TURQUESA */
             border-bottom: 2px solid #f0f0f0; 
         }
 
@@ -231,7 +231,7 @@
             padding: 35px; 
             border-radius: 20px; 
             margin-top: 50px; 
-            border: 3px dashed #ddd; 
+            border: 3px dashed var(--odonto-color); /* ALTERADO PARA TURQUESA */
         }
 
         textarea { 
@@ -313,7 +313,7 @@
 </div>
 
 <div class="import-box">
-    <h3 style="margin:0; color: var(--warning); display: flex; align-items: center; gap: 10px;">
+    <h3 style="margin:0; color: var(--odonto-color); display: flex; align-items: center; gap: 10px;">
         📥 Importador de Dados Externos (Planilha)
     </h3>
     <p style="font-size: 0.85rem; color: #777; margin: 15px 0;">
@@ -362,7 +362,6 @@
                 mapaPolos[poloLocal] = (mapaPolos[poloLocal] || 0) + 1;
             });
 
-            // CORREÇÃO: Ordenação segura que protege dados antigos sem campo 'criadoEm'
             listaAgendamentos.sort((a, b) => {
                 const timeA = a.criadoEm ? (a.criadoEm.seconds || 0) : 0;
                 const timeB = b.criadoEm ? (b.criadoEm.seconds || 0) : 0;
@@ -376,10 +375,10 @@
                     <td><input type="checkbox" class="checkMilitar" value="${item.id}"></td>
                     <td><b>${item.data || '---'}</b></td>
                     <td>${item.horario || '-'}</td>
-                    <td>${item.nome || 'NÃO IDENTIFICADO'}</td>
+                    <td style="font-weight:bold; color:var(--odonto-color)">${item.nome || 'NÃO IDENTIFICADO'}</td>
                     <td><code style="background:#eee; padding:3px 6px; border-radius:4px;">${item.rg || '-'}</code></td>
                     <td>${item.unidadeServe || 'N/I'}</td>
-                    <td>${item.telefone || '-'}</td>
+                    <td>${item.whatsapp || item.telefone || '-'}</td>
                     <td style="font-size: 0.8rem; color: #555;">${item.email || '-'}</td>
                     <td style="color:var(--odonto-color); font-weight:bold">${item.unidade || '-'}</td>
                     <td>
@@ -391,7 +390,7 @@
             corpo.innerHTML = tabelaHtml || '<tr><td colspan="10" style="text-align:center;">Nenhum agendamento registrado.</td></tr>';
             document.getElementById("totalGeral").innerText = listaAgendamentos.length;
 
-            renderizarCardsResumo(mapaUnidades, "gridUnidades", "--cba-blue");
+            renderizarCardsResumo(mapaUnidades, "gridUnidades", "--odonto-color");
             renderizarCardsResumo(mapaPolos, "gridPolos", "--success");
 
         } catch (erro) {
@@ -447,7 +446,7 @@
                     nome: colunas[2]?.trim().toUpperCase() || "SEM NOME",
                     rg: colunas[3]?.trim() || "",
                     unidadeServe: colunas[4]?.trim() || "N/I",
-                    telefone: colunas[5]?.trim() || "-",
+                    whatsapp: colunas[5]?.trim() || "-",
                     email: colunas[6]?.trim().toLowerCase() || "-",
                     unidade: colunas[7]?.trim() || "Não informado",
                     criadoEm: firebase.firestore.FieldValue.serverTimestamp()
