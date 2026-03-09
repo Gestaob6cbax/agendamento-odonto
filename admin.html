@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -14,14 +15,14 @@
             --cba-blue: #0a2c6d; 
             --bg: #f0f2f5;
             --success: #27ae60;
-            --warning: #f39c12;
-            --odonto-color: #009688;
+            --odonto-color: #009688; /* Verde Odonto */
+            --white: #ffffff;
         }
 
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; }
 
         header { 
-            background: white; padding: 20px 30px; border-radius: 15px; display: flex; 
+            background: var(--white); padding: 20px 30px; border-radius: 15px; display: flex; 
             justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             border-left: 10px solid var(--odonto-color); margin-bottom: 25px;
         }
@@ -29,7 +30,6 @@
         .header-info h1 { margin: 0; color: var(--cba-blue); font-size: 1.6rem; }
         .header-info p { margin: 5px 0 0; color: #666; font-weight: bold; font-size: 0.9rem; }
 
-        /* 1ª LINHA: TOTAL GERAL */
         .card-destaque-geral {
             background: var(--odonto-color); color: white; padding: 20px; border-radius: 15px;
             text-align: center; box-shadow: 0 4px 15px rgba(0, 150, 136, 0.2); margin-bottom: 25px;
@@ -50,14 +50,21 @@
         }
         
         .card-unidade { 
-            background: white; padding: 15px; border-radius: 12px; text-align: center; 
+            background: var(--white); padding: 15px; border-radius: 12px; text-align: center; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-bottom: 4px solid var(--cba-blue); 
         }
         .card-unidade h4 { font-size: 0.65rem; color: #888; text-transform: uppercase; margin: 0; min-height: 30px; display: flex; align-items: center; justify-content: center; }
         .card-unidade p { font-size: 1.8rem; font-weight: bold; color: var(--cba-blue); margin: 5px 0 0; }
 
+        .card-polo { 
+            background: var(--white); padding: 15px; border-radius: 12px; text-align: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-bottom: 4px solid var(--success); 
+        }
+        .card-polo h4 { font-size: 0.65rem; color: #888; text-transform: uppercase; margin: 0; min-height: 30px; display: flex; align-items: center; justify-content: center; }
+        .card-polo p { font-size: 1.8rem; font-weight: bold; color: var(--success); margin: 5px 0 0; }
+
         .controls-box { 
-            background: white; padding: 20px; border-radius: 15px; display: flex; 
+            background: var(--white); padding: 20px; border-radius: 15px; display: flex; 
             gap: 15px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); align-items: center;
         }
         #lupa { flex-grow: 1; padding: 12px 20px; border: 2px solid #eee; border-radius: 10px; outline: none; font-size: 1rem; }
@@ -67,13 +74,13 @@
         .btn-excel { background: var(--success); }
         .btn-danger { background: var(--cba-red); }
 
-        .table-container { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .table-container { background: var(--white); border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 0.7rem; text-transform: uppercase; color: #888; border-bottom: 2px solid #eee; }
-        td { padding: 12px 15px; border-bottom: 1px solid #f1f1f1; font-size: 0.85rem; color: #333; }
+        td { padding: 12px 15px; border-bottom: 1px solid #f1f1f1; font-size: 0.85rem; }
         .btn-del { color: var(--cba-red); background: #ffebee; border: 1px solid #ffcdd2; padding: 6px; border-radius: 8px; cursor: pointer; }
 
-        .import-box { background: #fff; padding: 25px; border-radius: 15px; margin-top: 40px; border: 2px dashed #ccc; }
+        .import-box { background: var(--white); padding: 25px; border-radius: 15px; margin-top: 40px; border: 2px dashed #ccc; }
         textarea { width: 100%; height: 100px; margin: 15px 0; padding: 15px; border-radius: 10px; border: 1px solid #ddd; font-family: monospace; box-sizing: border-box; }
     </style>
 </head>
@@ -98,10 +105,10 @@
     <p id="totalGeral">0</p>
 </div>
 
-<div class="section-title">Efetivo por Unidade de Origem (Quartel do Militar)</div>
+<div class="section-title">Efetivo por Unidade de Origem (Quartel)</div>
 <div id="gridUnidades" class="grid-cards"></div>
 
-<div class="section-title">Agendamentos por Polo de Inspeção (Onde será o atendimento)</div>
+<div class="section-title">Distribuição por Polo de Atendimento (Local da Consulta)</div>
 <div id="gridPolos" class="grid-cards"></div>
 
 <div class="controls-box">
@@ -115,26 +122,28 @@
             <tr>
                 <th>Data</th>
                 <th>Turno</th>
-                <th>Polo de Atendimento</th>
                 <th>Militar</th>
-                <th>RG</th>
+                <th>RG Mil</th>
                 <th>Unidade Origem</th>
+                <th>Polo de Atendimento</th>
                 <th>Ações</th>
             </tr>
         </thead>
         <tbody id="corpoTabela">
-            <tr><td colspan="7" style="text-align:center; padding:40px;">Carregando registros...</td></tr>
+            <tr><td colspan="7" style="text-align:center; padding:40px;">Buscando registros...</td></tr>
         </tbody>
     </table>
 </div>
 
 <div class="import-box">
-    <h3 style="margin:0; color: var(--warning);">📥 Sincronização de Dados</h3>
-    <textarea id="textoExcel" placeholder="Cole aqui os dados do Excel: Data | Turno | Nome | Posto | RG | Unidade"></textarea>
-    <button class="btn btn-refresh" style="width: 100%; justify-content: center; background: var(--success);" onclick="importarDados()">🚀 Importar para o Firebase</button>
+    <h3 style="margin:0; color: var(--odonto-color);">📥 Importar Dados do Excel</h3>
+    <p style="font-size: 0.8rem; color: #777; margin-top: 5px;">Ordem: <b>Data | Turno | Polo | Unidade Origem | Nome | RG</b></p>
+    <textarea id="textoExcel" placeholder="Cole as linhas da planilha aqui..."></textarea>
+    <button class="btn btn-refresh" style="width: 100%; justify-content: center; background: var(--success);" onclick="importarDados()">🚀 Sincronizar com Banco de Dados</button>
 </div>
 
 <script>
+    // USANDO AS CREDENCIAIS DA ODONTO QUE VOCÊ JÁ POSSUI
     const firebaseConfig = {
         apiKey: "AIzaSyBkq2D8JFuxzPTI2z_Iirg3rYfSFfPJRXY",
         authDomain: "agendamento-odonto-cbax.firebaseapp.com",
@@ -161,12 +170,12 @@
                 const d = doc.data();
                 lista.push({id: doc.id, ...d});
                 
-                // Mapa de Origem (Quartel)
-                let un = d.unidadeServe || d.unidade || "N/I";
+                // Agrupamento por Origem
+                let un = d.unidadeServe || d.unidadeOrigem || "N/I";
                 unidadesMap[un] = (unidadesMap[un] || 0) + 1;
 
-                // Mapa de Destino (Polo)
-                let polo = d.poloAtendimento || "Polo não informado";
+                // Agrupamento por Polo
+                let polo = d.unidade || d.poloAtendimento || "Não informado";
                 polosMap[polo] = (polosMap[polo] || 0) + 1;
             });
 
@@ -174,238 +183,39 @@
 
             let html = "";
             lista.forEach(d => {
-                const dataBR = d.data ? d.data.split('-').reverse().join('/') : '-';
                 html += `<tr>
-                    <td><b>${dataBR}</b></td>
-                    <td>${d.turno}</td>
-                    <td style="color:var(--odonto-color); font-weight:bold">${d.poloAtendimento || '-'}</td>
-                    <td>${d.posto} ${d.nome}</td>
-                    <td><code>${d.rg}</code></td>
-                    <td>${d.unidadeServe || d.unidade || 'N/I'}</td>
+                    <td><b>${d.data || '-'}</b></td>
+                    <td>${d.turno || '-'}</td>
+                    <td>${d.nome || 'N/I'}</td>
+                    <td><code>${d.rg || '-'}</code></td>
+                    <td>${d.unidadeServe || d.unidadeOrigem || 'N/I'}</td>
+                    <td style="color:var(--odonto-color); font-weight:bold">${d.unidade || d.poloAtendimento || '-'}</td>
                     <td><button class="btn-del" onclick="excluirRegistro('${d.id}')">🗑️</button></td>
                 </tr>`;
             });
 
             corpo.innerHTML = html || '<tr><td colspan="7" style="text-align:center;">Sem dados.</td></tr>';
-            
-            // Atualiza Card Total
             document.getElementById("totalGeral").innerText = lista.length;
 
-            // Atualiza Cards de Origem
-            let uniHtml = "";
-            Object.keys(unidadesMap).sort().forEach(un => {
-                uniHtml += `<div class="card-unidade"><h4>${un}</h4><p>${unidadesMap[un]}</p></div>`;
-            });
-            document.getElementById("gridUnidades").innerHTML = uniHtml;
-
-            // Atualiza Cards de Polos
-            let poloHtml = "";
-            Object.keys(polosMap).sort().forEach(p => {
-                poloHtml += `<div class="card-unidade" style="border-bottom-color: var(--success)">
-                                <h4 style="color:var(--success)">${p}</h4>
-                                <p style="color: var(--odonto-color)">${polosMap[p]}</p>
-                             </div>`;
-            });
-            document.getElementById("gridPolos").innerHTML = poloHtml;
+            // Renderizar Cards Únicos
+            renderizarResumo(unidadesMap, "gridUnidades", "card-unidade");
+            renderizarResumo(polosMap, "gridPolos", "card-polo");
 
         } catch (e) { console.error(e); }
     }
 
-    async function excluirRegistro(id) {
-        if(confirm("Deseja apagar este agendamento?")) {
-            await db.collection("agendamentos_odonto").doc(id).delete();
-            carregarDados();
-        }
-    }
-
-    async function resetarTudo() {
-        if(confirm("🚨 PERIGO: Isso apagará TODOS os agendamentos. Confirma?")) {
-            const snap = await db.collection("agendamentos_odonto").get();
-            const batch = db.batch();
-            snap.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
-            carregarDados();
-        }
-    }
-
-    function baixarPlanilha() {
-        const table = document.getElementById("tabelaADM");
-        const wb = XLSX.utils.table_to_book(table);
-        XLSX.writeFile(wb, "Relatorio_Odontologico_CBAX.xlsx");
-    }
-
-    function filtrar() {
-        const busca = document.getElementById("lupa").value.toUpperCase();
-        const rows = document.querySelectorAll("#corpoTabela tr");
-        rows.forEach(r => {
-            r.style.display = r.innerText.toUpperCase().includes(busca) ? "" : "none";
+    function renderizarResumo(mapa, containerId, classeCard) {
+        let html = "";
+        Object.keys(mapa).sort().forEach(chave => {
+            html += `<div class="${classeCard}"><h4>${chave}</h4><p>${mapa[chave]}</p></div>`;
         });
+        document.getElementById(containerId).innerHTML = html;
     }
 
+    // ... (Mantenha as funções de importarDados, excluirRegistro, resetarTudo e filtrar) ...
+    // Importante: Na importarDados(), altere a coleção para "agendamentos_odonto"
+    
     window.onload = carregarDados;
 </script>
 </body>
 </html>
-
-
-23:34
-
-<div class="import-box">
-    <h3 style="margin:0; color: var(--warning);">📥 Importar Dados do Excel</h3>
-    <p style="font-size: 0.8rem; color: #777; margin-top: 5px;">Ordem: <b>Data | Turno | Local | Origem | Nome | Posto | RG | Telefone | E-mail</b></p>
-    <textarea id="textoExcel" placeholder="Cole as linhas da planilha aqui..."></textarea>
-    <button class="btn btn-refresh" style="width: 100%; justify-content: center; background: var(--success);" onclick="importarDados()">🚀 Sincronizar com Banco de Dados</button>
-</div>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyBkq2D8JFuxzPTI2z_Iirg3rYfSFfPJRXY",
-        authDomain: "inspecao-saude-cbax.firebaseapp.com",
-        projectId: "inspecao-saude-cbax",
-        storageBucket: "inspecao-saude-cbax.firebasestorage.app",
-        messagingSenderId: "1011281662526",
-        appId: "1:1011281662526:web:1028e8a8d140684e98376f"
-    };
-
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    async function carregarDados() {
-        const corpo = document.getElementById("corpoTabela");
-        corpo.innerHTML = '<tr><td colspan="9" style="text-align:center;">Carregando...</td></tr>';
-        
-        try {
-            const snap = await db.collection("agendamentos_saude").get();
-            let lista = [];
-            let unidadesMap = {};
-            let polosMap = {};
-
-            snap.forEach(doc => {
-                const d = doc.data();
-                lista.push({id: doc.id, ...d});
-                
-                // Contagem por Origem
-                let un = d.unidadeOrigem || "N/I";
-                unidadesMap[un] = (unidadesMap[un] || 0) + 1;
-
-                // Contagem por Polo (Destino)
-                let polo = d.unidadeDestino || "N/I";
-                polosMap[polo] = (polosMap[polo] || 0) + 1;
-            });
-
-            lista.sort((a,b) => b.timestamp - a.timestamp);
-
-            let html = "";
-            lista.forEach(d => {
-                const classeTurno = d.turno === "Manhã" ? "manha" : "tarde";
-                html += `<tr>
-                    <td><b>${d.data}</b></td>
-                    <td><span class="badge-turno ${classeTurno}">${d.turno}</span></td>
-                    <td>${d.posto} ${d.nome}</td>
-                    <td><code>${d.rg}</code></td>
-                    <td>${d.unidadeOrigem}</td>
-                    <td>${d.telefone || '-'}</td>
-                    <td><small>${d.email || '-'}</small></td>
-                    <td><small>${d.unidadeDestino}</small></td>
-                    <td><button class="btn-del" onclick="excluirRegistro('${d.id}')">🗑️</button></td>
-                </tr>`;
-            });
-
-            corpo.innerHTML = html || '<tr><td colspan="9" style="text-align:center;">Nenhum agendamento encontrado.</td></tr>';
-            document.getElementById("totalGeral").innerText = lista.length;
-
-            // Renderizar Cards de Unidades (Origem)
-            let uniHtml = "";
-            Object.keys(unidadesMap).sort().forEach(un => {
-                uniHtml += `<div class="card-unidade"><h4>${un}</h4><p>${unidadesMap[un]}</p></div>`;
-            });
-            document.getElementById("gridUnidades").innerHTML = uniHtml;
-
-            // Renderizar Cards de Polos (Destino)
-            let polosHtml = "";
-            Object.keys(polosMap).sort().forEach(p => {
-                polosHtml += `<div class="card-polo"><h4>${p}</h4><p>${polosMap[p]}</p></div>`;
-            });
-            document.getElementById("gridPolos").innerHTML = polosHtml;
-
-        } catch (e) { console.error(e); }
-    }
-
-    async function importarDados() {
-        const texto = document.getElementById("textoExcel").value;
-        if(!texto.trim()) return alert("Cole os dados primeiro!");
-        const linhas = texto.split('\n');
-        let contador = 0;
-        let ignorados = 0;
-
-        for(let l of linhas) {
-            if(!l.trim()) continue;
-            const c = l.split('\t');
-            if(c.length >= 7) {
-                const rgImport = c[6]?.trim();
-                const check = await db.collection("agendamentos_saude").where("rg", "==", rgImport).get();
-                
-                if(check.empty) {
-                    await db.collection("agendamentos_saude").add({
-                        data: c[0]?.trim(),
-                        turno: c[1]?.trim(),
-                        unidadeDestino: c[2]?.trim(),
-                        unidadeOrigem: c[3]?.trim(),
-                        nome: c[4]?.trim().toUpperCase(),
-                        posto: c[5]?.trim().toUpperCase(),
-                        rg: rgImport,
-                        telefone: c[7]?.trim() || "Não informado",
-                        email: c[8]?.trim() || "Não informado",
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    contador++;
-                } else {
-                    ignorados++;
-                }
-            }
-        }
-        alert(`${contador} militares sincronizados! (${ignorados} já existiam e foram pulados)`);
-        document.getElementById("textoExcel").value = "";
-        carregarDados();
-    }
-
-    async function excluirRegistro(id) {
-        if(confirm("Deseja realmente excluir este agendamento?")) {
-            await db.collection("agendamentos_saude").doc(id).delete();
-            carregarDados();
-        }
-    }
-
-    async function resetarTudo() {
-        if(confirm("🚨 ATENÇÃO: Deseja ZERAR TODO o banco de dados?")) {
-            const snap = await db.collection("agendamentos_saude").get();
-            const batch = db.batch();
-            snap.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
-            alert("Banco de dados resetado com sucesso!");
-            carregarDados();
-        }
-    }
-
-    function baixarPlanilha() {
-        const table = document.getElementById("tabelaADM");
-        const wb = XLSX.utils.table_to_book(table);
-        XLSX.writeFile(wb, "Relatorio_Geral_Inspecao_Medica_2026.xlsx");
-    }
-
-    function filtrar() {
-        const busca = document.getElementById("lupa").value.toUpperCase();
-        const rows = document.querySelectorAll("#corpoTabela tr");
-        rows.forEach(r => {
-            r.style.display = r.innerText.toUpperCase().includes(busca) ? "" : "none";
-        });
-    }
-
-    window.onload = carregarDados;
-</script>
-</body>
-</html>
-
-
-
-
