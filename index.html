@@ -354,76 +354,105 @@
         });
     }
 
-    async function salvar(){
-        let btn = document.getElementById("btnAcao");
-        let rg = document.getElementById("rg").value.trim();
-        let posto = document.getElementById("posto").value;
-        let nome = document.getElementById("nome").value.toUpperCase();
-        let unidadeSelector = document.getElementById("unidade");
-        let unidadeTexto = unidadeSelector.options[unidadeSelector.selectedIndex].text;
-        let data = document.getElementById("data").value;
-        let horario = document.getElementById("horario").value;
+  async function salvar(){
 
-        if(!unidadeTexto || !data || !horario || !rg || !nome || !posto){
-            alert("Preencha todos os campos obrigatórios.");
+    let btn = document.getElementById("btnAcao");
+
+    let rg = document.getElementById("rg").value.trim();
+    let posto = document.getElementById("posto").value;
+    let nome = document.getElementById("nome").value.toUpperCase();
+
+    let unidadeSelector = document.getElementById("unidade");
+    let unidadeTexto = unidadeSelector.options[unidadeSelector.selectedIndex].text;
+
+    let dataBR = document.getElementById("data").value;
+    let horario = document.getElementById("horario").value;
+
+    // Converter para formato internacional (evita erro no Excel)
+    let partes = dataBR.split("/");
+    let dataISO = partes[2] + "-" + partes[1] + "-" + partes[0];
+
+    if(!unidadeTexto || !dataBR || !horario || !rg || !nome || !posto){
+        alert("Preencha todos os campos obrigatórios.");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = "Verificando...";
+
+    try {
+
+        // verificar se já existe agendamento para o RG
+        const consultaRG = await db.collection("agendamentos_odonto")
+        .where("rg","==",rg)
+        .get();
+
+        if(!consultaRG.empty){
+            alert("Já existe um agendamento para este RG.");
+            btn.disabled = false;
+            btn.innerText = "Confirmar Agendamento";
             return;
         }
 
-        btn.disabled = true;
-        btn.innerText = "Verificando...";
+        // verificar se horário já está ocupado
+        const consulta = await db.collection("agendamentos_odonto")
+        .where("unidadeDestino","==",unidadeTexto)
+        .where("data","==",dataBR)
+        .where("turno","==",horario)
+        .get();
 
-        try {
-            const consultaRG = await db.collection("agendamentos_odonto").where("rg","==",rg).get();
-            if(!consultaRG.empty){
-                alert("Já existe um agendamento para este RG.");
-                btn.disabled = false; btn.innerText = "Confirmar Agendamento";
-                return;
-            }
-
-            const consulta = await db.collection("agendamentos_odonto")
-                .where("unidadeDestino","==",unidadeTexto)
-                .where("data","==",data)
-                .where("turno","==",horario)
-                .get();
-
-            if(!consulta.empty){
-                alert("Este horário já foi preenchido!");
-                btn.disabled = false; btn.innerText = "Confirmar Agendamento";
-                return;
-            }
-
-            let dados = {
-                unidadeOrigem: document.getElementById("unidadeServe").value,
-                posto: posto,
-                nome: nome,
-                rg: rg,
-                telefone: document.getElementById("telefone").value,
-                email: document.getElementById("email").value,
-                unidadeDestino: unidadeTexto, 
-                data: data, 
-                turno: horario,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            await db.collection("agendamentos_odonto").add(dados);
-            
-            document.getElementById("containerForm").style.display = "none";
-            document.getElementById("comp-nome").innerText = dados.posto + " " + dados.nome;
-            document.getElementById("comp-rg").innerText = dados.rg;
-            document.getElementById("comp-local").innerText = dados.unidadeDestino;
-            document.getElementById("comp-data").innerText = dados.data;
-            document.getElementById("comp-horario").innerText = dados.turno;
-            document.getElementById("areaComprovante").style.display = "block";
-            
-            gerarPDF(dados);
-            window.scrollTo(0, 0);
-
-        } catch (error) {
-            alert("Erro: " + error.message);
+        if(!consulta.empty){
+            alert("Este horário já foi preenchido!");
             btn.disabled = false;
+            btn.innerText = "Confirmar Agendamento";
+            return;
         }
+
+        let dados = {
+
+            unidadeOrigem: document.getElementById("unidadeServe").value,
+            posto: posto,
+            nome: nome,
+            rg: rg,
+            telefone: document.getElementById("telefone").value,
+            email: document.getElementById("email").value,
+
+            unidadeDestino: unidadeTexto,
+
+            data: dataBR,
+            dataISO: dataISO,
+
+            turno: horario,
+
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await db.collection("agendamentos_odonto").add(dados);
+
+        document.getElementById("containerForm").style.display = "none";
+
+        document.getElementById("comp-nome").innerText = dados.posto + " " + dados.nome;
+        document.getElementById("comp-rg").innerText = dados.rg;
+        document.getElementById("comp-local").innerText = dados.unidadeDestino;
+        document.getElementById("comp-data").innerText = dados.data;
+        document.getElementById("comp-horario").innerText = dados.turno;
+
+        document.getElementById("areaComprovante").style.display = "block";
+
+        gerarPDF(dados);
+
+        window.scrollTo(0,0);
+
+    } catch(error){
+
+        alert("Erro: " + error.message);
+
+        btn.disabled = false;
+        btn.innerText = "Confirmar Agendamento";
+
     }
 
+}
     function gerarPDF(d){
         const doc = new jsPDF();
         doc.setFontSize(16);
