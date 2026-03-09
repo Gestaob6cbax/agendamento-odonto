@@ -7,7 +7,6 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 
@@ -87,60 +86,12 @@ margin-top:25px;
 cursor:pointer;
 }
 
-#areaComprovante{
-display:none;
-width:100%;
-max-width:450px;
-}
-
-.comprovante-card{
-background:white;
-border-radius:30px;
-padding:30px;
-text-align:center;
-box-shadow:0 10px 25px rgba(0,0,0,0.1);
-border-top:15px solid var(--odonto-main);
-}
-
-.nome-militar{
-color:var(--cba-blue);
-font-weight:bold;
-font-size:1.3rem;
-margin-bottom:20px;
-display:block;
-}
-
-.info-linha{
-display:flex;
-gap:10px;
-margin-bottom:12px;
-}
-
-.btn-pdf{
-background:#555;
-color:white;
-border:none;
-padding:15px;
-width:100%;
-border-radius:12px;
-font-weight:bold;
-cursor:pointer;
-}
-
-.link-voltar{
-color:var(--cba-blue);
-cursor:pointer;
-display:block;
-margin-top:20px;
-font-weight:bold;
-}
-
 </style>
 </head>
 
 <body>
 
-<div class="container" id="containerForm">
+<div class="container">
 
 <header>
 <img src="logo.png">
@@ -210,7 +161,7 @@ font-weight:bold;
 <option value="1GMAR">1º GMAR - BOTAFOGO</option>
 <option value="2GMAR">2º GMAR - BARRA</option>
 <option value="3GMAR">3º GMAR - COPACABANA</option>
-<option value="4º GMAR">CEPO-(CHARITAS)</option>
+<option value="4GMAR">CEPO-(CHARITAS)</option>
 </select>
 
 <label>Data Disponível:</label>
@@ -226,6 +177,7 @@ font-weight:bold;
 <button onclick="salvar()" id="btnAcao">Confirmar Agendamento</button>
 
 </div>
+
 </div>
 
 <script>
@@ -243,7 +195,7 @@ const datas={
 "1GMAR":["11/03/2026","18/03/2026","25/03/2026"],
 "2GMAR":["10/03/2026","17/03/2026","24/03/2026"],
 "3GMAR":["10/03/2026","17/03/2026","24/03/2026"],
-"4º GMAR":["10/04/2026","17/04/2026"]
+"4GMAR":["10/04/2026","17/04/2026"]
 };
 
 function gerarHorarios(inicio,qtd){
@@ -294,7 +246,7 @@ let horarios=[];
 if(unidade==="1GMAR")horarios=gerarHorarios("08:00",14);
 if(unidade==="2GMAR")horarios=gerarHorarios("08:00",14);
 if(unidade==="3GMAR")horarios=gerarHorarios("08:00",11);
-if(unidade==="4º GMAR")horarios=gerarHorarios("08:00",13);
+if(unidade==="4GMAR")horarios=gerarHorarios("08:00",13);
 
 horarios.forEach(h=>{
 
@@ -310,33 +262,79 @@ selectHorario.appendChild(op);
 
 async function salvar(){
 
-let rg=document.getElementById("rg").value;
+let unidadeServe=document.getElementById("unidadeServe").value;
+let posto=document.getElementById("posto").value;
 let nome=document.getElementById("nome").value;
-
+let rg=document.getElementById("rg").value;
+let telefone=document.getElementById("telefone").value;
+let email=document.getElementById("email").value;
+let unidadeDestino=document.getElementById("unidade").value;
 let dataBR=document.getElementById("data").value;
+let horario=document.getElementById("horario").value;
 
-if(!dataBR){
-alert("Selecione a data");
+if(!unidadeServe||!posto||!nome||!rg||!dataBR||!horario||!unidadeDestino){
+
+alert("Preencha todos os campos obrigatórios.");
 return;
+
 }
 
 let partes=dataBR.split("/");
-
 let dataISO=partes[2]+"-"+partes[1]+"-"+partes[0];
 
-let dados={
+try{
 
-nome:nome,
-rg:rg,
+await db.runTransaction(async (transaction)=>{
+
+const ref=db.collection("agendamentos_odonto");
+
+const consulta=await ref
+.where("dataISO","==",dataISO)
+.where("horario","==",horario)
+.where("unidadeDestino","==",unidadeDestino)
+.get();
+
+if(!consulta.empty){
+
+throw "HORARIO_OCUPADO";
+
+}
+
+const novo=ref.doc();
+
+transaction.set(novo,{
+unidadeServe,
+posto,
+nome,
+rg,
+telefone,
+email,
+unidadeDestino,
 data:dataBR,
-dataISO:dataISO,
+dataISO,
+horario,
 timestamp:firebase.firestore.FieldValue.serverTimestamp()
+});
 
-};
+});
 
-await db.collection("agendamentos_odonto").add(dados);
+alert("Agendamento confirmado com sucesso!");
 
-alert("Agendamento realizado");
+location.reload();
+
+}catch(e){
+
+if(e==="HORARIO_OCUPADO"){
+
+alert("⚠️ Este horário acabou de ser ocupado. Escolha outro.");
+
+}else{
+
+alert("Erro ao salvar agendamento.");
+
+}
+
+}
 
 }
 
