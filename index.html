@@ -10,176 +10,195 @@
 
     <style>
         :root {
-            --odonto-green: #009688; 
+            --odonto-main: #009688; /* Verde Água da Odonto */
             --cba-blue: #0a2c6d;
-            --bg-light: #f4f7f6;
+            --bg-light: #f1f4f8;
+            --white: #ffffff;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-light);
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
         }
 
         .container {
-            background: white;
+            background: var(--white);
             width: 100%;
             max-width: 550px;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border-top: 8px solid var(--odonto-green);
+            padding-bottom: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid #ddd;
         }
 
-        header { text-align: center; margin-bottom: 25px; }
-        header img { width: 80px; margin-bottom: 10px; }
-        header h1 { color: var(--cba-blue); font-size: 1.4rem; margin: 0; }
+        header { 
+            text-align: center; 
+            padding: 25px 15px;
+        }
+        header img { width: 75px; margin-bottom: 10px; }
+        header h1 { color: var(--cba-blue); font-size: 1.5rem; margin: 0; text-transform: uppercase; }
+        header p { color: #666; font-size: 0.9rem; margin-top: 5px; font-weight: bold; }
 
-        h2 { 
-            font-size: 1rem; 
-            color: var(--odonto-green); 
-            border-bottom: 1px solid #eee; 
-            padding-bottom: 5px; 
-            margin-top: 25px; 
+        /* Estilo das Faixas de Título (Igual Dermatologia) */
+        .block-header {
+            background-color: var(--odonto-main);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.85rem;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 10px 15px;
+            border-radius: 8px;
+        }
+
+        .form-section {
+            padding: 0 20px;
         }
 
         label {
             display: block;
             margin-top: 15px;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #444;
+            text-transform: uppercase;
         }
 
         input, select {
             width: 100%;
-            padding: 12px;
+            padding: 11px;
             margin-top: 5px;
-            border: 2px solid #eee;
-            border-radius: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
             box-sizing: border-box;
             font-size: 1rem;
             outline: none;
             transition: 0.3s;
+            background-color: #fafafa;
         }
 
-        input:focus, select:focus { border-color: var(--odonto-green); }
+        input:focus, select:focus { 
+            border-color: var(--odonto-main); 
+            background-color: #fff; 
+            box-shadow: 0 0 5px rgba(0,150,136,0.2); 
+        }
 
         button {
             width: 100%;
-            background: var(--odonto-green);
+            background: var(--odonto-main);
             color: white;
             padding: 15px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 1.1rem;
             font-weight: bold;
-            margin-top: 30px;
+            margin-top: 25px;
             cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.3s;
         }
 
         button:hover { background: #00796b; }
 
         .confirmacao {
-            margin-top: 20px;
-            padding: 15px;
+            margin: 20px 15px;
+            padding: 20px;
             border-radius: 10px;
             display: none;
             text-align: center;
             font-weight: bold;
+            border: 1px solid #c3e6cb;
         }
 
         .btn-print {
             background-color: var(--cba-blue);
-            margin-top: 10px;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-   <header>
-    <img src="logo.png" alt="Logo CBA X">
-    <h1>Agendamento Odontológico</h1>
-    <p>CBA X - 6ª Seção - Gestão 2026</p>
-</header>
+    <header>
+        <img src="logo.png" alt="Logo CBA X">
+        <h1>Agendamento Odontológico</h1>
+        <p>CBA X - 6ª Seção (ADM) - Gestão 2026</p>
+    </header>
 
-    <h2>Dados do Militar</h2>
+    <div class="block-header">Bloco 1: Identificação do Militar</div>
+    <div class="form-section">
+        <label>Unidade que Serve:</label>
+        <select id="unidadeServe">
+            <option value="">Selecione...</option>
+            <option>CBA X</option><option>CER X</option>
+            <option>1º GMAR (Botafogo)</option><option>2º GMAR (Barra)</option>
+            <option>3º GMAR (Copacabana)</option><option>4º GMAR (Itaipu)</option>
+            <option>DBM 1/M (Paquetá)</option><option>DBM 2/M (Ramos)</option>
+            <option>DBM 3/M (Recreio)</option><option>DBM 4/M (Guaratiba)</option>
+            <option>DBM 5/M (Sepetiba)</option><option>DBM 6/M (Itaipu)</option>
+        </select>
 
-    <label>Unidade que Serve:</label>
-    <select id="unidadeServe">
-        <option value="">Selecione</option>
-        <option>CBA X</option>
-        <option>CER X</option>
-        <option>1º GMAR (Botafogo)</option>
-        <option>2º GMAR (Barra da Tijuca)</option>
-        <option>3º GMAR (Copacabana)</option>
-        <option>4º GMAR (Itaipu)</option>
-        <option>DBM 1/M (Paquetá)</option>
-        <option>DBM 2/M (Piscinão de Ramos)</option>
-        <option>DBM 3/M (Recreio)</option>
-        <option>DBM 4/M (Barra de Guaratiba)</option>
-        <option>DBM 5/M (Sepetiba)</option>
-        <option>DBM 6/M (Itaipu)</option>
-    </select>
+        <label>Posto/Graduação:</label>
+        <select id="posto">
+            <option value="">Selecione...</option>
+            <option>CEL BM</option><option>TC BM</option><option>MAJ BM</option>
+            <option>CAP BM</option><option>1º TEN BM</option><option>2º TEN BM</option>
+            <option>SUBTEN BM</option><option>1º SGT BM</option><option>2º SGT BM</option>
+            <option>3º SGT BM</option><option>CB BM</option><option>SD BM</option>
+        </select>
 
-    <label>Posto/Graduação:</label>
-    <select id="posto">
-        <option value="">Selecione</option>
-        <option>CEL BM</option>
-        <option>TC BM</option>
-        <option>MAJ BM</option>
-        <option>CAP BM</option>
-        <option>1º TEN BM</option>
-        <option>2º TEN BM</option>
-        <option>SUBTEN BM</option>
-        <option>1º SGT BM</option>
-        <option>2º SGT BM</option>
-        <option>3º SGT BM</option>
-        <option>CB BM</option>
-        <option>SD BM</option>
-    </select>
+        <label>Nome Completo:</label>
+        <input type="text" id="nome" placeholder="Digite seu nome">
 
-    <label>Nome Completo:</label>
-    <input type="text" id="nome" placeholder="Digite seu nome">
+        <label>RG Militar:</label>
+        <input type="number" id="rg" placeholder="Somente números">
 
-    <label>RG:</label>
-    <input type="number" id="rg" placeholder="Somente números">
+        <label>Telefone/WhatsApp:</label>
+        <input type="text" id="telefone" placeholder="(XX) 9XXXX-XXXX">
 
-    <label>Telefone:</label>
-    <input type="text" id="telefone" placeholder="(XX) XXXXX-XXXX">
+        <label>Email:</label>
+        <input type="email" id="email" placeholder="militar@exemplo.com">
+    </div>
 
-    <label>Email:</label>
-    <input type="email" id="email" placeholder="exemplo@email.com">
+    <div class="block-header">Bloco 2: Dados do Agendamento</div>
+    <div class="form-section">
+        <label>Polo de Atendimento:</label>
+        <select id="unidade">
+            <option value="">Selecione o Polo...</option>
+            <option value="1º GMAR - BOTAFOGO">1º GMAR - BOTAFOGO</option>
+            <option value="2º GMAR - BARRA (GBS)">2º GMAR - BARRA (GBS)</option>
+            <option value="3º GMAR - COPACABANA">3º GMAR - COPACABANA</option>
+            <option value="CEPO - POL DE CHARITAS (CEPO)">CEPO - NITERÓI</option>
+        </select>
 
-    <h2>Agendamento</h2>
+        <label>Data Escolhida:</label>
+        <input type="date" id="data">
 
-    <label>Unidade de Atendimento (Polo):</label>
-    <select id="unidade">
-        <option value="">Selecione</option>
-        <option value="1º GMAR - BOTAFOGO">1º GMAR - BOTAFOGO</option>
-        <option value="2º GMAR - BARRA (GBS)">2º GMAR - BARRA (GBS)</option>
-        <option value="3º GMAR - COPACABANA">3º GMAR - COPACABANA</option>
-        <option value="CEPO - POL DE CHARITAS(CEPO)">(CEPO)</option>
-    </select>
+        <label>Horário/Turno:</label>
+        <select id="horario">
+            <option value="">Selecione...</option>
+            <option>MANHÃ (08:00 às 12:00)</option>
+            <option>TARDE (13:00 às 17:00)</option>
+        </select>
 
-    <label>Data:</label>
-    <input type="date" id="data">
-
-    <label>Horário/Turno:</label>
-    <select id="horario">
-        <option value="">Selecione</option>
-        <option>MANHÃ (08:00 às 12:00)</option>
-        <option>TARDE (13:00 às 17:00)</option>
-    </select>
-
-    <button onclick="salvar()" id="btnAcao">Confirmar Agendamento</button>
+        <button onclick="salvar()" id="btnAcao">Confirmar Agendamento</button>
+    </div>
 
     <div id="confirmacaoBox" class="confirmacao"></div>
 </div>
@@ -247,70 +266,40 @@
 
     function imprimirComprovante() {
         if(!dadosParaImpressao) return;
-        
         const dataFormatada = dadosParaImpressao.data.split('-').reverse().join('/');
         const win = window.open('', '', 'height=700,width=700');
         
         win.document.write(`
             <html>
             <head>
-                <title>Comprovante Odonto</title>
                 <style>
-                    body { font-family: 'Segoe UI', Tahoma, sans-serif; padding: 40px; text-align: center; color: #333; }
-                    .header { border-bottom: 2px solid #0a2c6d; padding-bottom: 10px; margin-bottom: 20px; }
-                    .titulo { font-size: 20px; font-weight: bold; text-transform: uppercase; margin: 10px 0; color: #0a2c6d; }
-                    .sessao-txt { font-weight: bold; font-size: 14px; margin-bottom: 20px; color: #555; }
-                    .box { text-align: left; border: 1px solid #ccc; padding: 20px; border-radius: 12px; margin-top: 20px; background-color: #f9f9f9; }
-                    .info-label { font-weight: bold; color: #555; text-transform: uppercase; font-size: 0.8rem; }
-                    .info-valor { font-size: 1.1rem; margin-bottom: 10px; display: block; }
-                    hr { border: 0; border-top: 1px dashed #ccc; margin: 15px 0; }
-                    .footer { margin-top: 40px; font-size: 12px; color: #777; line-height: 1.5; }
-                    @media print {
-                        body { padding: 20px; }
-                        button { display: none; }
-                    }
+                    body { font-family: sans-serif; padding: 40px; text-align: center; }
+                    .box { border: 2px solid #0a2c6d; padding: 20px; border-radius: 12px; text-align: left; background: #f9f9f9; }
+                    .header { text-align: center; border-bottom: 2px solid #0a2c6d; padding-bottom: 10px; margin-bottom: 20px; }
+                    .label { font-weight: bold; color: #555; text-transform: uppercase; font-size: 12px; }
+                    .val { font-size: 16px; font-weight: bold; margin-bottom: 12px; display: block; }
                 </style>
             </head>
             <body>
-                <div class="header">
-                    <img src="logo.png" width="80" alt="Logo">
-                    <div class="titulo">Comprovante de Agendamento Odontológico</div>
-                    <div class="sessao-txt">CBA X - 6ª SEÇÃO</div>
-                </div>
-                
                 <div class="box">
-                    <span class="info-label">Dados do Militar:</span>
-                    <span class="info-valor">\${dadosParaImpressao.posto} \${dadosParaImpressao.nome}</span>
-                    
-                    <span class="info-label">RG Militar:</span>
-                    <span class="info-valor">\${dadosParaImpressao.rg}</span>
-                    
-                    <span class="info-label">Unidade de Origem:</span>
-                    <span class="info-valor">\${dadosParaImpressao.unidadeServe}</span>
-                    
-                    <hr>
-                    
-                    <span class="info-label">Polo de Atendimento:</span>
-                    <span class="info-valor">\${dadosParaImpressao.poloAtendimento}</span>
-                    
-                    <span class="info-label">Data e Turno:</span>
-                    <span class="info-valor">\${dataFormatada} - \${dadosParaImpressao.turno}</span>
-                </div>
-
-                <div class="footer">
-                    <strong>Solicitação realizada em:</strong> \${new Date().toLocaleString('pt-BR')} <br>
-                    <em>Este é um comprovante digital gerado pela 6ª Seção. Realize o print ou imprima para apresentação.</em> <br>
-                    <strong>Compareça com 15 minutos de antecedência.</strong>
+                    <div class="header">
+                        <strong>COMPROVANTE DE AGENDAMENTO ODONTOLÓGICO</strong><br>
+                        CBA X - 6ª SEÇÃO
+                    </div>
+                    <span class="label">Militar:</span>
+                    <span class="val">\${dadosParaImpressao.posto} \${dadosParaImpressao.nome}</span>
+                    <span class="label">RG:</span>
+                    <span class="val">\${dadosParaImpressao.rg}</span>
+                    <span class="label">Local:</span>
+                    <span class="val">\${dadosParaImpressao.poloAtendimento}</span>
+                    <span class="label">Data/Turno:</span>
+                    <span class="val">\${dataFormatada} - \${dadosParaImpressao.turno}</span>
                 </div>
             </body>
             </html>
         `);
-        
         win.document.close();
-        
-        setTimeout(() => {
-            win.print();
-        }, 500);
+        setTimeout(() => { win.print(); }, 500);
     }
 </script>
 
