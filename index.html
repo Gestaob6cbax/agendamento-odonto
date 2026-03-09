@@ -11,10 +11,9 @@
 
     <style>
         :root {
-            --odonto-main: #009688;
+            --odonto-main: #009688; /* Verde Oficial da Odonto */
             --cba-blue: #0a2c6d;
             --bg-light: #f1f4f8;
-            --laranja-comprovante: #ff9800;
         }
 
         body {
@@ -28,7 +27,6 @@
             padding: 15px;
         }
 
-        /* Container do Formulário */
         .container {
             background: white;
             width: 100%;
@@ -92,9 +90,9 @@
             text-transform: uppercase;
         }
 
-        /* --- ESTILO DO COMPROVANTE (PÁGINA À PARTE) --- */
+        /* --- COMPROVANTE VERDE ODONTO --- */
         #areaComprovante {
-            display: none; /* Inicia escondido */
+            display: none;
             width: 100%;
             max-width: 450px;
             animation: fadeIn 0.5s ease-in-out;
@@ -106,7 +104,7 @@
             padding: 30px;
             text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border-top: 15px solid var(--laranja-comprovante);
+            border-top: 15px solid var(--odonto-main); /* Mudado para Verde */
         }
 
         .comprovante-card img { width: 100px; margin-bottom: 10px; }
@@ -115,11 +113,11 @@
         .subtitulo-secao { color: #333; font-size: 1.1rem; margin-bottom: 25px; }
 
         .caixa-dados {
-            border: 2px dashed var(--laranja-comprovante);
+            border: 2px dashed var(--odonto-main); /* Mudado para Verde */
             border-radius: 20px;
             padding: 20px;
             margin-bottom: 30px;
-            background-color: #fffaf2;
+            background-color: #f0f9f8; /* Fundo suave esverdeado */
         }
 
         .nome-militar { color: var(--cba-blue); font-weight: bold; font-size: 1.3rem; margin-bottom: 20px; display: block; text-transform: uppercase; }
@@ -253,7 +251,7 @@
             <div class="info-linha">🚩 <b>Horário:</b> <span id="comp-horario"></span></div>
             
             <p style="font-size: 0.85rem; margin-top: 20px; color: #555; font-style: italic;">
-                (Apresente este comprovante no polo de atendimento)
+                (Agendamento Odontológico - CBA X)
             </p>
         </div>
 
@@ -277,9 +275,7 @@
         appId: "1:545212689993:web:b4b85a03bb2dcac9739998"
     };
 
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
 
     const datas = {
@@ -383,20 +379,15 @@
 
             await db.collection("agendamentos_odonto").add(dados);
             
-            // --- AÇÃO DE SUCESSO: TROCA DE PÁGINA ---
             document.getElementById("containerForm").style.display = "none";
-            
             document.getElementById("comp-nome").innerText = dados.posto + " " + dados.nome;
             document.getElementById("comp-rg").innerText = dados.rg;
             document.getElementById("comp-local").innerText = dados.unidadeDestino;
             document.getElementById("comp-data").innerText = dados.data;
             document.getElementById("comp-horario").innerText = dados.turno;
-            
             document.getElementById("areaComprovante").style.display = "block";
             
-            // Gerar PDF silenciosamente
             gerarPDF(dados);
-            
             window.scrollTo(0, 0);
 
         } catch (error) {
