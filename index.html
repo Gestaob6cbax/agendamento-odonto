@@ -296,7 +296,7 @@
 <script>
     const { jsPDF } = window.jspdf;
 
-    const AGENDA_ABERTA = false;
+    const AGENDA_ABERTA = true;
     const MENSAGEM_AGENDA_FECHADA = "⚠️ AGENDAMENTO ODONTOLÓGICO TEMPORARIAMENTE SUSPENSO.\n\nAguarde nova liberação da 6ª Seção.";
 
     const firebaseConfig = {
@@ -312,38 +312,87 @@
     const db = firebase.firestore();
 
     const datas = {
+        "1GMAR": {
+            "11/03/2026": 0,
+            "18/03/2026": 0,
+            "25/03/2026": 7,
+            "01/04/2026": 10,
+            "08/04/2026": 3,
+            "06/05/2026": 10,
+            "13/05/2026": 11,
+            "20/05/2026": 8,
+            "27/05/2026": 11,
+            "03/06/2026": 13,
+            "10/06/2026": 13,
+            "17/06/2026": 12,
+            "24/06/2026": 13,
+            "01/07/2026": 12,
+            "08/07/2026": 11,
+            "15/07/2026": 14,
+            "22/07/2026": 9,
+            "29/07/2026": 10
+        },
 
-        "1GMAR":[
-            "25/03/2026",
-            "01/04/2026","08/04/2026",
-            "06/05/2026","13/05/2026","20/05/2026","27/05/2026",
-            "03/06/2026","10/06/2026","17/06/2026","24/06/2026",
-            "01/07/2026","08/07/2026","15/07/2026","22/07/2026","29/07/2026"
-        ],
+        "2GMAR": {
+            "10/03/2026": 0,
+            "17/03/2026": 1,
+            "24/03/2026": 10,
+            "31/03/2026": 13,
+            "28/04/2026": 8,
+            "05/05/2026": 16,
+            "12/05/2026": 14,
+            "19/05/2026": 18,
+            "26/05/2026": 18,
+            "02/06/2026": 18,
+            "09/06/2026": 13,
+            "16/06/2026": 21,
+            "23/06/2026": 20,
+            "30/06/2026": 16,
+            "07/07/2026": 11,
+            "14/07/2026": 16,
+            "21/07/2026": 16,
+            "28/07/2026": 7
+        },
 
-        "2GMAR":[
-            "10/03/2026","17/03/2026","24/03/2026","31/03/2026",
-            "28/04/2026",
-            "05/05/2026","12/05/2026","19/05/2026","26/05/2026",
-            "02/06/2026","09/06/2026","16/06/2026","23/06/2026","30/06/2026",
-            "07/07/2026","14/07/2026","21/07/2026","28/07/2026"
-        ],
+        "3GMAR": {
+            "10/03/2026": 0,
+            "17/03/2026": 6,
+            "24/03/2026": 10,
+            "31/03/2026": 6,
+            "07/04/2026": 9,
+            "14/04/2026": 7,
+            "28/04/2026": 9,
+            "05/05/2026": 11,
+            "12/05/2026": 8,
+            "19/05/2026": 10,
+            "26/05/2026": 11,
+            "02/06/2026": 10,
+            "09/06/2026": 10,
+            "16/06/2026": 11,
+            "23/06/2026": 11,
+            "30/06/2026": 11,
+            "07/07/2026": 10,
+            "14/07/2026": 11,
+            "21/07/2026": 10,
+            "28/07/2026": 10
+        },
 
-        "3GMAR":[
-            "10/03/2026","17/03/2026","24/03/2026","31/03/2026",
-            "07/04/2026","14/04/2026","28/04/2026",
-            "05/05/2026","12/05/2026","19/05/2026","26/05/2026",
-            "02/06/2026","09/06/2026","16/06/2026","23/06/2026","30/06/2026",
-            "07/07/2026","14/07/2026","21/07/2026","28/07/2026"
-        ],
-
-        "4º GMAR":[
-            "10/04/2026","17/04/2026",
-            "08/05/2026","15/05/2026","22/05/2026","29/05/2026",
-            "12/06/2026","19/06/2026","26/06/2026",
-            "03/07/2026","10/07/2026","17/07/2026","24/07/2026","31/07/2026"
-        ]
-
+        "4º GMAR": {
+            "10/04/2026": 0,
+            "17/04/2026": 1,
+            "08/05/2026": 7,
+            "15/05/2026": 1,
+            "22/05/2026": 5,
+            "29/05/2026": 7,
+            "12/06/2026": 10,
+            "19/06/2026": 8,
+            "26/06/2026": 13,
+            "03/07/2026": 12,
+            "10/07/2026": 13,
+            "17/07/2026": 11,
+            "24/07/2026": 11,
+            "31/07/2026": 11
+        }
     };
 
     function configurarStatusAgenda(){
@@ -388,6 +437,17 @@
         return horarios;
     }
 
+    function formatarDataHoraAgendamento(){
+        const agora = new Date();
+        const dia = String(agora.getDate()).padStart(2, "0");
+        const mes = String(agora.getMonth() + 1).padStart(2, "0");
+        const ano = agora.getFullYear();
+        const hora = String(agora.getHours()).padStart(2, "0");
+        const minuto = String(agora.getMinutes()).padStart(2, "0");
+        const segundo = String(agora.getSeconds()).padStart(2, "0");
+        return `${dia}/${mes}/${ano} ${hora}:${minuto}:${segundo}`;
+    }
+
     function carregarDatas(){
         let unidade = document.getElementById("unidade").value;
         let selectData = document.getElementById("data");
@@ -401,10 +461,12 @@
 
         if(!unidade) return;
 
-        datas[unidade].forEach(d => {
+        Object.keys(datas[unidade]).forEach(d => {
+            let vagas = datas[unidade][d];
             let op = document.createElement("option");
             op.value = d;
-            op.text = d;
+            op.text = vagas > 0 ? `${d} - ${vagas} vaga(s)` : `${d} - ESGOTADO`;
+            if(vagas <= 0) op.disabled = true;
             selectData.appendChild(op);
         });
     }
@@ -441,6 +503,9 @@
                 if(h) ocupados[h] = (ocupados[h] || 0) + 1;
             });
 
+            let vagasRestantesData = datas[unidade][dataBR] - snap.size;
+            if(vagasRestantesData < 0) vagasRestantesData = 0;
+
             selectHorario.innerHTML = "<option value=''>Selecione o horário</option>";
 
             let totalHorarios = horarios.length;
@@ -452,14 +517,22 @@
 
                 let op = document.createElement("option");
                 op.value = h;
-                op.text = usado >= 1 ? `${h} - PREENCHIDO` : `${h} - DISPONÍVEL`;
-                if(usado >= 1) op.disabled = true;
+
+                if(usado >= 1){
+                    op.text = `${h} - PREENCHIDO`;
+                    op.disabled = true;
+                } else if(vagasRestantesData <= 0){
+                    op.text = `${h} - ESGOTADO`;
+                    op.disabled = true;
+                } else {
+                    op.text = `${h} - DISPONÍVEL`;
+                }
+
                 selectHorario.appendChild(op);
             });
 
-            let restantes = totalHorarios - ocupadosTotal;
             contador.style.display = "block";
-            contador.innerHTML = `Vagas restantes nesta data: <strong>${restantes}</strong> de <strong>${totalHorarios}</strong>`;
+            contador.innerHTML = `Vagas restantes nesta data: <strong>${vagasRestantesData}</strong>`;
 
         } catch(error){
             console.error(error);
@@ -483,6 +556,7 @@
 
         let unidadeSelector = document.getElementById("unidade");
         let unidadeTexto = unidadeSelector.options[unidadeSelector.selectedIndex].text;
+        let unidadeCodigo = document.getElementById("unidade").value;
 
         let dataBR = document.getElementById("data").value;
         let horario = document.getElementById("horario").value;
@@ -511,6 +585,21 @@
                 return;
             }
 
+            const consultaData = await db.collection("agendamentos_odonto")
+                .where("unidadeDestino","==",unidadeTexto)
+                .where("data","==",dataBR)
+                .get();
+
+            let vagasPermitidas = datas[unidadeCodigo][dataBR] || 0;
+
+            if(consultaData.size >= vagasPermitidas){
+                alert("Não há mais vagas disponíveis para esta data.");
+                btn.disabled = false;
+                btn.innerText = "Confirmar Agendamento";
+                await carregarHorarios();
+                return;
+            }
+
             const consulta = await db.collection("agendamentos_odonto")
                 .where("unidadeDestino","==",unidadeTexto)
                 .where("data","==",dataBR)
@@ -533,9 +622,11 @@
                 telefone: document.getElementById("telefone").value,
                 email: document.getElementById("email").value,
                 unidadeDestino: unidadeTexto,
+                unidadeCodigo: unidadeCodigo,
                 data: dataBR,
                 dataISO: dataISO,
                 turno: horario,
+                dataAgendamentoTexto: formatarDataHoraAgendamento(),
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
 
