@@ -203,9 +203,12 @@
        <label>Unidade que Serve:</label>
         <select id="unidadeServe">
             <option value="">Selecione...</option>
-            <option>CBA X</option><option>CER X</option>
-            <option>1º GMAR (Botafogo)</option><option>2º GMAR (Barra da Tijuca)</option>
-            <option>3º GMAR (Copacabana)</option><option>4º GMAR (Itaipu)</option>
+            <option>CBA X</option>
+            <option>CER X</option>
+            <option>1º GMAR (Botafogo)</option>
+            <option>2º GMAR (Barra da Tijuca)</option>
+            <option>3º GMAR (Copacabana)</option>
+            <option>4º GMAR (Itaipu)</option>
             <option>DBM 1/M (Paquetá)</option>
             <option>DBM 2/M (Piscinão de Ramos)</option>
             <option>DBM 3/M (Recreio)</option>
@@ -407,6 +410,32 @@
         }
     };
 
+    function gerarIdVaga(unidadeCodigo, dataBR) {
+        return `${unidadeCodigo}_${dataBR.replaceAll("/", "-")}`;
+    }
+
+    async function obterVagasRestantes(unidadeCodigo, dataBR) {
+        const ref = db.collection("controle_vagas_odonto").doc(gerarIdVaga(unidadeCodigo, dataBR));
+        const doc = await ref.get();
+
+        if (doc.exists) {
+            return Number(doc.data().vagasRestantes || 0);
+        }
+
+        return Number(agendaConfig[unidadeCodigo]?.datas?.[dataBR] || 0);
+    }
+
+    async function salvarVagasRestantes(unidadeCodigo, dataBR, vagasRestantes) {
+        const ref = db.collection("controle_vagas_odonto").doc(gerarIdVaga(unidadeCodigo, dataBR));
+
+        await ref.set({
+            unidadeCodigo: unidadeCodigo,
+            data: dataBR,
+            vagasRestantes: vagasRestantes,
+            atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+    }
+
     function configurarStatusAgenda(){
         const aviso = document.getElementById("avisoAgendaFechada");
         const btn = document.getElementById("btnAcao");
@@ -445,11 +474,9 @@
         const config = agendaConfig[unidadeCodigo];
         if (!config) return "MANHÃ";
 
-        if (unidadeCodigo !== "GBS") {
-            return "MANHÃ";
-        }
+        if (unidadeCodigo !== "GBS") return "MANHÃ";
 
-        const vagasTarde = config.turnos.tarde; // 7
+        const vagasTarde = config.turnos.tarde;
 
         if (vagasLivresNaData > vagasTarde) {
             return "MANHÃ";
@@ -458,30 +485,38 @@
         return "TARDE";
     }
 
-    function carregarDatas(){
+    async function carregarDatas(){
         let unidade = document.getElementById("unidade").value;
         let selectData = document.getElementById("data");
         let contador = document.getElementById("contadorVagas");
 
-        selectData.innerHTML = "<option value=''>Selecione a data</option>";
+        selectData.innerHTML = "<option value=''>Carregando datas...</option>";
         contador.style.display = "none";
         contador.innerHTML = "";
 
-        if(!unidade) return;
+        if(!unidade) {
+            selectData.innerHTML = "<option value=''>Selecione o polo primeiro</option>";
+            return;
+        }
 
         let unidadeConfig = agendaConfig[unidade];
-        if(!unidadeConfig) return;
+        if(!unidadeConfig) {
+            selectData.innerHTML = "<option value=''>Selecione o polo primeiro</option>";
+            return;
+        }
 
-        Object.keys(unidadeConfig.datas).forEach(data => {
-            let vagasLivres = unidadeConfig.datas[data];
+        selectData.innerHTML = "<option value=''>Selecione a data</option>";
 
-            if(vagasLivres > 0){
+        for (const data of Object.keys(unidadeConfig.datas)) {
+            const vagasLivres = await obterVagasRestantes(unidade, data);
+
+            if (vagasLivres > 0) {
                 let op = document.createElement("option");
                 op.value = data;
-                op.text = `${data}`;
+                op.text = data;
                 selectData.appendChild(op);
             }
-        });
+        }
 
         if(selectData.options.length === 1){
             let op = document.createElement("option");
@@ -492,7 +527,7 @@
         }
     }
 
-    function mostrarVagasData(){
+    async function mostrarVagasData(){
         let unidade = document.getElementById("unidade").value;
         let dataBR = document.getElementById("data").value;
         let contador = document.getElementById("contadorVagas");
@@ -506,7 +541,7 @@
         if(!unidadeConfig) return;
 
         let capacidade = unidadeConfig.capacidade;
-        let livres = unidadeConfig.datas[dataBR] || 0;
+        let livres = await obterVagasRestantes(unidade, dataBR);
         let ocupadas = capacidade - livres;
 
         if(ocupadas < 0) ocupadas = 0;
@@ -527,7 +562,6 @@
     }
 
     async function salvar(){
-
         if(!AGENDA_ABERTA){
             alert(MENSAGEM_AGENDA_FECHADA);
             return;
@@ -541,7 +575,7 @@
 
         let unidadeSelector = document.getElementById("unidade");
         let unidadeCodigo = unidadeSelector.value;
-        let unidadeTexto = unidadeSelector.options[unidadeSelector.selectedIndex].text;
+        let unidadeTexto = unidadeSelector.options[unidadeSelector.selectedIndex]?.text || "";
 
         let dataBR = document.getElementById("data").value;
 
@@ -576,13 +610,13 @@
                 return;
             }
 
-            let vagasLivres = unidadeConfig.datas[dataBR] || 0;
+            let vagasLivres = await obterVagasRestantes(unidadeCodigo, dataBR);
 
             if(vagasLivres <= 0){
                 alert("Não há mais vagas disponíveis para esta data.");
                 btn.disabled = false;
                 btn.innerText = "Confirmar Agendamento";
-                mostrarVagasData();
+                await mostrarVagasData();
                 return;
             }
 
@@ -605,8 +639,7 @@
             };
 
             await db.collection("agendamentos_odonto").add(dados);
-
-            agendaConfig[unidadeCodigo].datas[dataBR] = agendaConfig[unidadeCodigo].datas[dataBR] - 1;
+            await salvarVagasRestantes(unidadeCodigo, dataBR, vagasLivres - 1);
 
             document.getElementById("containerForm").style.display = "none";
             document.getElementById("comp-nome").innerText = dados.posto + " " + dados.nome;
