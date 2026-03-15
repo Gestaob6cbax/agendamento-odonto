@@ -184,7 +184,7 @@
             vertical-align: top;
         }
         
-        .badge-turno { 
+        .badge-horario { 
             padding: 4px 8px; 
             border-radius: 6px; 
             font-weight: bold; 
@@ -205,7 +205,7 @@
             border: 1px solid #ffe0b2; 
         }
 
-        .sem-turno { 
+        .sem-horario { 
             background: #eceff1; 
             color: #455a64; 
             border: 1px solid #cfd8dc; 
@@ -268,7 +268,7 @@
 <div id="gridPolos" class="grid-cards"></div>
 
 <div class="controls-box">
-    <input type="text" id="lupa" placeholder="🔍 Pesquise por Nome, RG, Unidade, Local, Turno ou data de agendamento..." onkeyup="filtrar()">
+    <input type="text" id="lupa" placeholder="🔍 Pesquise por Nome, RG, Unidade, Local, Horário ou data de agendamento..." onkeyup="filtrar()">
     <button class="btn btn-refresh" onclick="carregarDados()">🔄 Atualizar Dados</button>
 </div>
 
@@ -285,7 +285,7 @@
                 <th>Telefone</th>
                 <th>Email</th>
                 <th>Local Inspeção</th>
-                <th>Turno</th>
+                <th>Horário</th>
                 <th>Agendado em</th>
                 <th>Ações</th>
             </tr>
@@ -298,7 +298,7 @@
 
 <div style="background: #fff; padding: 25px; border-radius: 15px; margin-top: 40px; border: 2px dashed #ccc;">
     <h3 style="margin:0; color: var(--success);">📥 Importar do Excel</h3>
-    <p style="font-size: 0.8rem; color: #777;">Ordem: <b>Data | Posto | Nome | RG | Unidade Origem | TELEFONE | EMAIL | Local Inspeção | Turno</b></p>
+    <p style="font-size: 0.8rem; color: #777;">Ordem: <b>Data | Posto | Nome | RG | Unidade Origem | TELEFONE | EMAIL | Local Inspeção | Horário</b></p>
     <textarea id="textoExcel" placeholder="Cole as linhas da planilha aqui..."></textarea>
     <button class="btn btn-refresh" style="width: 100%; justify-content: center; background: var(--success);" onclick="importarDados()">🚀 Sincronizar com Firebase</button>
 </div>
@@ -345,22 +345,22 @@
         }, { merge: true });
     }
 
-    function montarBadgeTurno(turno) {
-        const valor = (turno || "").toUpperCase().trim();
+    function montarBadgeHorario(horario) {
+        const valor = (horario || "").toUpperCase().trim();
 
         if (valor === "MANHÃ" || valor === "MANHA") {
-            return `<span class="badge-turno manha">MANHÃ</span>`;
+            return `<span class="badge-horario manha">MANHÃ</span>`;
         }
 
         if (valor === "TARDE") {
-            return `<span class="badge-turno tarde">TARDE</span>`;
+            return `<span class="badge-horario tarde">TARDE</span>`;
         }
 
         if (valor) {
-            return `<span class="badge-turno sem-turno">${valor}</span>`;
+            return `<span class="badge-horario sem-horario">${valor}</span>`;
         }
 
-        return `<span class="badge-turno sem-turno">-</span>`;
+        return `<span class="badge-horario sem-horario">-</span>`;
     }
 
     async function carregarDados() {
@@ -397,7 +397,7 @@
 
             let html = "";
             lista.forEach(d => {
-                const turnoDisplay = montarBadgeTurno(d.turno);
+                const horarioDisplay = montarBadgeHorario(d.turno);
                 const agendadoEm = d.dataAgendamentoTexto || "-";
 
                 html += `<tr>
@@ -410,7 +410,7 @@
                     <td>${d.telefone || '-'}</td>
                     <td><small>${d.email || '-'}</small></td>
                     <td style="color:var(--odonto-color); font-weight:bold">${d.unidadeDestino || d.localAtendimento || d.poloAtendimento || '-'}</td>
-                    <td>${turnoDisplay}</td>
+                    <td>${horarioDisplay}</td>
                     <td><span class="agendado-em">${agendadoEm}</span></td>
                     <td><button class="btn-del" onclick="excluirRegistro('${d.id}')">🗑️</button></td>
                 </tr>`;
@@ -607,7 +607,7 @@
                     Telefone: c[6].innerText.trim(),
                     Email: c[7].innerText.trim(),
                     Local_Inspecao: c[8].innerText.trim(),
-                    Turno: c[9].innerText.trim(),
+                    Horario: c[9].innerText.trim(),
                     Agendado_em: c[10].innerText.trim()
                 });
             }
