@@ -145,7 +145,14 @@
             background-color: #f0f9f8;
         }
 
-        .nome-militar { color: var(--cba-blue); font-weight: bold; font-size: 1.3rem; margin-bottom: 20px; display: block; text-transform: uppercase; }
+        .nome-militar {
+            color: var(--cba-blue);
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: block;
+            text-transform: uppercase;
+        }
         
         .info-linha { 
             display: flex; 
@@ -174,7 +181,14 @@
             text-transform: uppercase;
         }
 
-        .link-voltar { color: var(--cba-blue); text-decoration: underline; cursor: pointer; display: block; margin-top: 20px; font-weight: bold; }
+        .link-voltar {
+            color: var(--cba-blue);
+            text-decoration: underline;
+            cursor: pointer;
+            display: block;
+            margin-top: 20px;
+            font-weight: bold;
+        }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -200,7 +214,7 @@
 
     <div class="block-header">Bloco 1: Identificação do Militar</div>
     <div class="form-section">
-       <label>Unidade que Serve:</label>
+        <label>Unidade que Serve:</label>
         <select id="unidadeServe">
             <option value="">Selecione...</option>
             <option>CBA X</option>
@@ -220,10 +234,18 @@
         <label>Posto/Graduação:</label>
         <select id="posto">
             <option value="">Selecione...</option>
-            <option>CEL BM</option><option>TC BM</option><option>MAJ BM</option>
-            <option>CAP BM</option><option>1º TEN BM</option><option>2º TEN BM</option>
-            <option>SUBTEN BM</option><option>1º SGT BM</option><option>2º SGT BM</option>
-            <option>3º SGT BM</option><option>CB BM</option><option>SD BM</option>
+            <option>CEL BM</option>
+            <option>TC BM</option>
+            <option>MAJ BM</option>
+            <option>CAP BM</option>
+            <option>1º TEN BM</option>
+            <option>2º TEN BM</option>
+            <option>SUBTEN BM</option>
+            <option>1º SGT BM</option>
+            <option>2º SGT BM</option>
+            <option>3º SGT BM</option>
+            <option>CB BM</option>
+            <option>SD BM</option>
         </select>
 
         <label>Nome Completo:</label>
@@ -277,7 +299,7 @@
             <div class="info-linha">🚩 <b>RG:</b> <span id="comp-rg"></span></div>
             <div class="info-linha">🚩 <b>Local da Inspeção:</b> <span id="comp-local"></span></div>
             <div class="info-linha">🚩 <b>Data:</b> <span id="comp-data"></span></div>
-            <div class="info-linha">🚩 <b>Turno:</b> <span id="comp-turno"></span></div>
+            <div class="info-linha">🚩 <b>Horário:</b> <span id="comp-horario"></span></div>
             
             <p style="font-size: 0.85rem; margin-top: 20px; color: #555; font-style: italic;">
                 (Agendamento Odontológico - CBA X)
@@ -546,11 +568,11 @@
 
         if(ocupadas < 0) ocupadas = 0;
 
-        let textoTurno = "Turno do próximo agendamento: <strong>MANHÃ</strong>";
+        let textoTurno = "Horário do próximo agendamento: <strong>MANHÃ</strong>";
 
         if (unidade === "GBS") {
             const turnoAtual = definirTurnoAutomatico(unidade, livres);
-            textoTurno = `Turno do próximo agendamento: <strong>${turnoAtual}</strong>`;
+            textoTurno = `Horário do próximo agendamento: <strong>${turnoAtual}</strong>`;
         }
 
         contador.style.display = "block";
@@ -620,7 +642,7 @@
                 return;
             }
 
-            let turnoAutomatico = definirTurnoAutomatico(unidadeCodigo, vagasLivres);
+            let horarioAutomatico = definirTurnoAutomatico(unidadeCodigo, vagasLivres);
 
             let dados = {
                 unidadeOrigem: document.getElementById("unidadeServe").value,
@@ -633,7 +655,7 @@
                 unidadeCodigo: unidadeCodigo,
                 data: dataBR,
                 dataISO: dataISO,
-                turno: turnoAutomatico,
+                turno: horarioAutomatico,
                 dataAgendamentoTexto: formatarDataHoraAgendamento(),
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -646,7 +668,7 @@
             document.getElementById("comp-rg").innerText = dados.rg;
             document.getElementById("comp-local").innerText = dados.unidadeDestino;
             document.getElementById("comp-data").innerText = dados.data;
-            document.getElementById("comp-turno").innerText = dados.turno;
+            document.getElementById("comp-horario").innerText = dados.turno;
             document.getElementById("areaComprovante").style.display = "block";
 
             gerarPDF(dados);
@@ -669,7 +691,7 @@
         doc.text("RG: " + d.rg, 15, 50);
         doc.text("Local da Inspeção: " + d.unidadeDestino, 15, 60);
         doc.text("Data: " + d.data, 15, 70);
-        doc.text("Turno: " + d.turno, 15, 80);
+        doc.text("Horário: " + d.turno, 15, 80);
         doc.text("----------------------------------------------------------", 15, 90);
         doc.setFontSize(10);
         doc.text("Emitido em: " + new Date().toLocaleString(), 15, 100);
