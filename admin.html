@@ -163,7 +163,7 @@
         table { 
             width: 100%; 
             border-collapse: collapse; 
-            min-width: 1100px; 
+            min-width: 1250px; 
         }
 
         th { 
@@ -181,6 +181,7 @@
             border-bottom: 1px solid #f1f1f1; 
             font-size: 0.85rem; 
             color: #333; 
+            vertical-align: top;
         }
         
         .badge-turno { 
@@ -204,6 +205,13 @@
             padding: 6px; 
             border-radius: 8px; 
             cursor: pointer; 
+        }
+
+        .agendado-em {
+            font-size: 0.78rem;
+            line-height: 1.35;
+            color: #444;
+            font-weight: 600;
         }
 
         textarea { 
@@ -247,7 +255,7 @@
 <div id="gridPolos" class="grid-cards"></div>
 
 <div class="controls-box">
-    <input type="text" id="lupa" placeholder="🔍 Pesquise por Nome, RG, Unidade ou Local..." onkeyup="filtrar()">
+    <input type="text" id="lupa" placeholder="🔍 Pesquise por Nome, RG, Unidade, Local ou data de agendamento..." onkeyup="filtrar()">
     <button class="btn btn-refresh" onclick="carregarDados()">🔄 Atualizar Dados</button>
 </div>
 
@@ -261,15 +269,16 @@
                 <th>Nome</th>
                 <th>RG</th>
                 <th>Unidade Origem</th>
-                <th>TELEFONE</th>
-                <th>EMAIL</th>
+                <th>Telefone</th>
+                <th>Email</th>
                 <th>Local Inspeção</th>
                 <th>Turno</th>
+                <th>Agendado em</th>
                 <th>Ações</th>
             </tr>
         </thead>
         <tbody id="corpoTabela">
-            <tr><td colspan="11" style="text-align:center; padding:40px;">Sincronizando registros...</td></tr>
+            <tr><td colspan="12" style="text-align:center; padding:40px;">Sincronizando registros...</td></tr>
         </tbody>
     </table>
 </div>
@@ -296,7 +305,7 @@
 
     async function carregarDados() {
         const corpo = document.getElementById("corpoTabela");
-        corpo.innerHTML = '<tr><td colspan="11" style="text-align:center;">Carregando...</td></tr>';
+        corpo.innerHTML = '<tr><td colspan="12" style="text-align:center;">Carregando...</td></tr>';
         
         try {
             const snap = await db.collection("agendamentos_odonto").get();
@@ -306,7 +315,7 @@
 
             snap.forEach(doc => {
                 const d = doc.data();
-                lista.push({id: doc.id, ...d});
+                lista.push({ id: doc.id, ...d });
                 
                 let unRaw = d.unidadeOrigem || d.unidadeServe || d.unidade || "NÃO INFORMADO";
                 let un = String(unRaw).trim().toUpperCase();
@@ -319,16 +328,21 @@
                 polosMap[polo] = (polosMap[polo] || 0) + 1;
             });
 
-            lista.sort((a,b) => {
+            lista.sort((a, b) => {
                 const dataA = a.dataISO || "";
                 const dataB = b.dataISO || "";
-                if(dataA !== dataB) return dataA.localeCompare(dataB);
+                if (dataA !== dataB) return dataA.localeCompare(dataB);
                 return (a.turno || "").localeCompare(b.turno || "");
             });
 
             let html = "";
             lista.forEach(d => {
-                const turnoDisplay = d.turno === "LIVRE DEMANDA" ? `<span class="badge-turno livre">Livre Demanda</span>` : (d.turno || '-');
+                const turnoDisplay = d.turno === "LIVRE DEMANDA"
+                    ? `<span class="badge-turno livre">Livre Demanda</span>`
+                    : (d.turno || '-');
+
+                const agendadoEm = d.dataAgendamentoTexto || "-";
+
                 html += `<tr>
                     <td><input type="checkbox" class="checkItem" value="${d.id}"></td>
                     <td><b>${d.data || '-'}</b></td>
@@ -340,11 +354,12 @@
                     <td><small>${d.email || '-'}</small></td>
                     <td style="color:var(--odonto-color); font-weight:bold">${d.unidadeDestino || d.localAtendimento || d.poloAtendimento || '-'}</td>
                     <td>${turnoDisplay}</td>
+                    <td><span class="agendado-em">${agendadoEm}</span></td>
                     <td><button class="btn-del" onclick="excluirRegistro('${d.id}')">🗑️</button></td>
                 </tr>`;
             });
 
-            corpo.innerHTML = html || '<tr><td colspan="11" style="text-align:center;">Sem registros.</td></tr>';
+            corpo.innerHTML = html || '<tr><td colspan="12" style="text-align:center;">Sem registros.</td></tr>';
             document.getElementById("totalGeral").innerText = lista.length;
 
             renderCards(unidadesMap, "gridUnidades", "--cba-blue");
@@ -352,13 +367,13 @@
 
         } catch (e) { 
             console.error("Erro ao carregar dados:", e); 
-            corpo.innerHTML = '<tr><td colspan="11" style="text-align:center; color:red;">Erro na conexão.</td></tr>';
+            corpo.innerHTML = '<tr><td colspan="12" style="text-align:center; color:red;">Erro na conexão.</td></tr>';
         }
     }
 
     function marcarTodos(source) {
         const checkboxes = document.querySelectorAll('.checkItem');
-        for(let c of checkboxes) c.checked = source.checked;
+        for (let c of checkboxes) c.checked = source.checked;
     }
 
     async function excluirSelecionados() {
@@ -500,7 +515,7 @@
     }
 
     async function excluirRegistro(id) {
-        if(confirm("Excluir este agendamento?")) {
+        if (confirm("Excluir este agendamento?")) {
             await db.collection("agendamentos_odonto").doc(id).delete();
             carregarDados();
         }
@@ -512,7 +527,7 @@
 
         linhas.forEach(l => {
             const c = l.querySelectorAll("td");
-            if(c.length){
+            if (c.length) {
                 dados.push({
                     Data: c[1].innerText.trim(),
                     Posto: c[2].innerText.trim(),
@@ -522,7 +537,8 @@
                     Telefone: c[6].innerText.trim(),
                     Email: c[7].innerText.trim(),
                     Local_Inspecao: c[8].innerText.trim(),
-                    Turno: c[9].innerText.trim()
+                    Turno: c[9].innerText.trim(),
+                    Agendado_em: c[10].innerText.trim()
                 });
             }
         });
