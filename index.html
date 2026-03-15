@@ -274,6 +274,7 @@
             <div class="info-linha">🚩 <b>RG:</b> <span id="comp-rg"></span></div>
             <div class="info-linha">🚩 <b>Local da Inspeção:</b> <span id="comp-local"></span></div>
             <div class="info-linha">🚩 <b>Data:</b> <span id="comp-data"></span></div>
+            <div class="info-linha">🚩 <b>Turno:</b> <span id="comp-turno"></span></div>
             
             <p style="font-size: 0.85rem; margin-top: 20px; color: #555; font-style: italic;">
                 (Agendamento Odontológico - CBA X)
@@ -309,6 +310,7 @@
     const agendaConfig = {
         "1GMAR": {
             capacidade: 14,
+            turnos: { manha: 14, tarde: 0 },
             datas: {
                 "11/03/2026": 0,
                 "18/03/2026": 0,
@@ -333,6 +335,7 @@
 
         "GBS": {
             capacidade: 21,
+            turnos: { manha: 14, tarde: 7 },
             datas: {
                 "10/03/2026": 0,
                 "17/03/2026": 1,
@@ -357,6 +360,7 @@
 
         "3GMAR": {
             capacidade: 11,
+            turnos: { manha: 11, tarde: 0 },
             datas: {
                 "10/03/2026": 0,
                 "17/03/2026": 6,
@@ -383,6 +387,7 @@
 
         "CEPO": {
             capacidade: 13,
+            turnos: { manha: 13, tarde: 0 },
             datas: {
                 "10/04/2026": 0,
                 "17/04/2026": 1,
@@ -434,6 +439,23 @@
         const minuto = String(agora.getMinutes()).padStart(2, "0");
         const segundo = String(agora.getSeconds()).padStart(2, "0");
         return `${dia}/${mes}/${ano} ${hora}:${minuto}:${segundo}`;
+    }
+
+    function definirTurnoAutomatico(unidadeCodigo, vagasLivresNaData) {
+        const config = agendaConfig[unidadeCodigo];
+        if (!config) return "MANHÃ";
+
+        if (unidadeCodigo !== "GBS") {
+            return "MANHÃ";
+        }
+
+        const vagasTarde = config.turnos.tarde; // 7
+
+        if (vagasLivresNaData > vagasTarde) {
+            return "MANHÃ";
+        }
+
+        return "TARDE";
     }
 
     function carregarDatas(){
@@ -489,10 +511,18 @@
 
         if(ocupadas < 0) ocupadas = 0;
 
+        let textoTurno = "Turno do próximo agendamento: <strong>MANHÃ</strong>";
+
+        if (unidade === "GBS") {
+            const turnoAtual = definirTurnoAutomatico(unidade, livres);
+            textoTurno = `Turno do próximo agendamento: <strong>${turnoAtual}</strong>`;
+        }
+
         contador.style.display = "block";
         contador.innerHTML = `
             Vagas ocupadas nesta data: <strong>${ocupadas}</strong><br>
-            Vagas livres nesta data: <strong>${livres}</strong> de <strong>${capacidade}</strong>
+            Vagas livres nesta data: <strong>${livres}</strong> de <strong>${capacidade}</strong><br>
+            ${textoTurno}
         `;
     }
 
@@ -556,6 +586,8 @@
                 return;
             }
 
+            let turnoAutomatico = definirTurnoAutomatico(unidadeCodigo, vagasLivres);
+
             let dados = {
                 unidadeOrigem: document.getElementById("unidadeServe").value,
                 posto: posto,
@@ -567,7 +599,7 @@
                 unidadeCodigo: unidadeCodigo,
                 data: dataBR,
                 dataISO: dataISO,
-                turno: "SEM HORÁRIO DEFINIDO",
+                turno: turnoAutomatico,
                 dataAgendamentoTexto: formatarDataHoraAgendamento(),
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
@@ -581,6 +613,7 @@
             document.getElementById("comp-rg").innerText = dados.rg;
             document.getElementById("comp-local").innerText = dados.unidadeDestino;
             document.getElementById("comp-data").innerText = dados.data;
+            document.getElementById("comp-turno").innerText = dados.turno;
             document.getElementById("areaComprovante").style.display = "block";
 
             gerarPDF(dados);
@@ -603,9 +636,10 @@
         doc.text("RG: " + d.rg, 15, 50);
         doc.text("Local da Inspeção: " + d.unidadeDestino, 15, 60);
         doc.text("Data: " + d.data, 15, 70);
-        doc.text("----------------------------------------------------------", 15, 80);
+        doc.text("Turno: " + d.turno, 15, 80);
+        doc.text("----------------------------------------------------------", 15, 90);
         doc.setFontSize(10);
-        doc.text("Emitido em: " + new Date().toLocaleString(), 15, 90);
+        doc.text("Emitido em: " + new Date().toLocaleString(), 15, 100);
         doc.save(`Agendamento_Odonto_${d.rg}.pdf`);
     }
 
