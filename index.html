@@ -507,6 +507,48 @@
         return "TARDE";
     }
 
+    function converterDataBRParaDate(dataBR) {
+        const [dia, mes, ano] = dataBR.split("/");
+        return new Date(Number(ano), Number(mes) - 1, Number(dia), 0, 0, 0, 0);
+    }
+
+    function ehDataPassada(dataBR) {
+        const hoje = new Date();
+        const inicioHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate(), 0, 0, 0, 0);
+        const dataSelecionada = converterDataBRParaDate(dataBR);
+        return dataSelecionada < inicioHoje;
+    }
+
+    function ehHoje(dataBR) {
+        const hoje = new Date();
+        const dataSelecionada = converterDataBRParaDate(dataBR);
+
+        return (
+            dataSelecionada.getDate() === hoje.getDate() &&
+            dataSelecionada.getMonth() === hoje.getMonth() &&
+            dataSelecionada.getFullYear() === hoje.getFullYear()
+        );
+    }
+
+    function dataDisponivelParaAgendamento(dataBR) {
+        if (!dataBR) return false;
+
+        if (ehDataPassada(dataBR)) {
+            return false;
+        }
+
+        if (ehHoje(dataBR)) {
+            const agora = new Date();
+            const hora = agora.getHours();
+            const minuto = agora.getMinutes();
+
+            if (hora > 10) return false;
+            if (hora === 10 && minuto >= 0) return false;
+        }
+
+        return true;
+    }
+
     async function carregarDatas(){
         let unidade = document.getElementById("unidade").value;
         let selectData = document.getElementById("data");
@@ -532,7 +574,7 @@
         for (const data of Object.keys(unidadeConfig.datas)) {
             const vagasLivres = await obterVagasRestantes(unidade, data);
 
-            if (vagasLivres > 0) {
+            if (vagasLivres > 0 && dataDisponivelParaAgendamento(data)) {
                 let op = document.createElement("option");
                 op.value = data;
                 op.text = data;
@@ -600,6 +642,21 @@
         let unidadeTexto = unidadeSelector.options[unidadeSelector.selectedIndex]?.text || "";
 
         let dataBR = document.getElementById("data").value;
+
+        if (!dataDisponivelParaAgendamento(dataBR)) {
+            if (ehDataPassada(dataBR)) {
+                alert("Esta data já passou e não pode mais receber agendamento.");
+            } else if (ehHoje(dataBR)) {
+                alert("O agendamento para hoje foi encerrado às 10h.");
+            } else {
+                alert("Agendamento não permitido para esta data.");
+            }
+
+            btn.disabled = false;
+            btn.innerText = "Confirmar Agendamento";
+            await carregarDatas();
+            return;
+        }
 
         let partes = dataBR ? dataBR.split("/") : [];
         let dataISO = partes.length === 3 ? partes[2] + "-" + partes[1] + "-" + partes[0] : "";
